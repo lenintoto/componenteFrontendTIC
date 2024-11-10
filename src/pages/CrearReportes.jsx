@@ -98,7 +98,7 @@ const CrearReportes = () => {
             className="mt-1"
           />
           <label htmlFor="estado" className="ml-2 text-sm font-medium text-gray-700">
-            Completado
+            Firmado
           </label>
         </div>
 

@@ -9,7 +9,9 @@ import VisualizarUsuarios from './pages/VisualizarUsuarios';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider } from './context/AuthProvider';
-//import Forbidden from './pages/Forbidden';
+import { NotFound } from './pages/NotFound';
+//import { Forbidden } from './pages/Forbidden';
+import { PrivateRoute } from './routes/PrivateRoutes';
 
 function App() {
   return (
@@ -25,7 +27,7 @@ function App() {
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          {/*<Route path="/forbidden" element={<Forbidden />} />*/}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
