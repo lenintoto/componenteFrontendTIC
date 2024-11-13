@@ -5,13 +5,11 @@ import Mensaje from '../components/Alerts/Alertas';
 import axios from 'axios';
 
 const LoginPage = () => {
-  const { auth, setAuth, data } = useContext(AuthContext)
-  //console.log(auth, data)
-  
+  const { setAuth } = useContext(AuthContext)
   const navigate = useNavigate()
   
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: ""
   })
 
@@ -27,20 +25,52 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/admin/login`
-      const respuesta = await axios.post(url, form)
-      console.log(respuesta)
-      localStorage.setItem("token", respuesta.data.token)
-      setAuth(respuesta.data)
-      navigate("/inicio")
-    } catch (error) {
+    if (Object.values(form).includes("")) {
       setMensaje({
-        respuesta: error.response.data?.message,
+        respuesta: "Todos los campos son obligatorios",
+        tipo: false
+      })
+      return
+    }
+
+    try {
+      const url = form.username.startsWith('admin') ? 
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/loginAdmin` : 
+        `${import.meta.env.VITE_BACKEND_URL}/operario/login`
+
+      const respuesta = await axios.post(url, form)
+      
+      const rol = form.username.startsWith('admin') ? 'administrador' : 'operario'
+      localStorage.setItem("token", respuesta.data.token)
+      localStorage.setItem("rol", rol)
+      
+      setAuth({
+        ...respuesta.data,
+        rol
+      })
+      
+      setMensaje({
+        respuesta: "Login exitoso",
+        tipo: true
+      })
+      
+      setForm({
+        username: "",
+        password: ""
+      })
+      
+      setTimeout(() => {
+        navigate("/inicio")
+      }, 500)
+
+    } catch (error) {
+      console.log(error)
+      setMensaje({
+        respuesta: error.response?.data?.msg || "Error al iniciar sesión",
         tipo: false
       })
       setForm({
-        email: "",
+        username: "",
         password: ""
       })
     }
@@ -53,17 +83,17 @@ const LoginPage = () => {
         <h2 className="text-center text-2xl font-bold mb-6">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700">
-              Email address
+            <label htmlFor="username" className="block text-gray-700">
+              Username
             </label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={form.email || ""}
+              type="text"
+              id="username"
+              name="username"
+              value={form.username || ""}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="name@example.com"
+              placeholder="Enter your username"
             />
           </div>
           <div className="mb-4">
@@ -96,19 +126,13 @@ const LoginPage = () => {
         </form>
         <div className="text-center">
           <p className="text-gray-700 text-sm">
-            Need an account?{' '}
+            Forgot your password?{' '}
             <Link to="/register" className="text-blue-500">
               Sign up!
             </Link>
           </p>
         </div>
       </div>
-      <footer className="absolute bottom-0 w-full text-center py-4 text-gray-700 bg-gray-100">
-        <div>Copyright © Your Website 2023</div>
-        <div>
-          <Link to="#" className="text-blue-500">Privacy Policy</Link> · <Link to="#" className="text-blue-500">Terms & Conditions</Link>
-        </div>
-      </footer>
     </div>
   );
 };

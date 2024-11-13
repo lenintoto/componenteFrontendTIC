@@ -21,7 +21,7 @@ const Inicio = () => {
             <p><strong>Username:</strong> [Username]</p>
             <p><strong>Nombre:</strong> [Nombre]</p>
             <p><strong>Apellido:</strong> [Apellido]</p>
-            <p><strong>Teléfono:</strong> [Teléfono]</p>
+            <p><strong>Extensión:</strong> [Extensión]</p>
             <p><strong>Email:</strong> [Email]</p>
           </div>
         </div>

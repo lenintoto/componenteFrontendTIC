@@ -19,11 +19,31 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route path="/inicio" element={<Inicio />} />
-            <Route path="/crear-reportes" element={<CrearReportes />} />
-            <Route path="/visualizar-reportes" element={<VisualizarReportes />} />
-            <Route path="/crear-usuarios" element={<CrearUsuario />} />
-            <Route path="/visualizar-usuarios" element={<VisualizarUsuarios />} />
+            <Route path="/inicio" element={
+              <PrivateRoute>
+                <Inicio />
+              </PrivateRoute>
+            } />
+            <Route path="/crear-reportes" element={
+              <PrivateRoute>
+                <CrearReportes />
+              </PrivateRoute>
+            } />
+            <Route path="/visualizar-reportes" element={
+              <PrivateRoute>
+                <VisualizarReportes />
+              </PrivateRoute>
+            } />
+            <Route path="/crear-usuarios" element={
+              <PrivateRoute>
+                <CrearUsuario />
+              </PrivateRoute>
+            } />
+            <Route path="/visualizar-usuarios" element={
+              <PrivateRoute>
+                <VisualizarUsuarios />
+              </PrivateRoute>
+            } />
           </Route>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

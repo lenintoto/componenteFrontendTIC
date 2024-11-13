@@ -19,25 +19,25 @@ const Sidebar = () => {
         </li>
         <li className={`px-4 py-2 ${location.pathname === '/crear-reportes' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
           <Link to="/crear-reportes" className="flex items-center">
-          <i class="fas fa-file-alt mr-3"></i>
+          <i className="fas fa-file-alt mr-3"></i>
             Crear Reportes
           </Link>
         </li>
         <li className={`px-4 py-2 ${location.pathname === '/visualizar-reportes' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
           <Link to="/visualizar-reportes" className="flex items-center">
-          <i class="fas fa-chart-pie mr-3"></i>
+          <i className="fas fa-chart-pie mr-3"></i>
             Visualizar Reportes
           </Link>
         </li>
         <li className={`px-4 py-2 ${location.pathname === '/crear-usuario' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
           <Link to="/crear-usuarios" className="flex items-center">
-          <i class="fas fa-user-plus mr-2"></i>
+          <i className="fas fa-user-plus mr-2"></i>
             Crear Usuarios
           </Link>
         </li>
         <li className={`px-4 py-2 ${location.pathname === '/visualizar-usuarios' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
           <Link to="/visualizar-usuarios" className="flex items-center">
-          <i class="fas fa-users mr-2"></i>
+          <i className="fas fa-users mr-2"></i>
             Visualizar Usuarios
           </Link>
         </li>
