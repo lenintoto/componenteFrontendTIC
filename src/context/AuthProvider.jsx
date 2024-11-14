@@ -5,14 +5,10 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ id: "", rol: "" });
-  const [data, setData] = useState("Info del context");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const obtenerPerfil = async (token) => {
-    if (!auth.id) {
-      console.log("ID de autenticación no está disponible");
-      return;
-    }
-
     try {
       const url = `${import.meta.env.VITE_BACKEND_URL}/admin/datos/${auth.id}`;
       const options = {
@@ -22,11 +18,18 @@ const AuthProvider = ({ children }) => {
         }
       };
       const respuesta = await axios.get(url, options);
-      //console.log(respuesta.data);
       setAuth(respuesta.data);
     } catch (error) {
       console.error("Error al obtener perfil:", error.response ? error.response.data : error.message);
+      setError("Error al obtener perfil");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    setAuth({ id: "", rol: "" });
   };
 
   useEffect(() => {
@@ -34,14 +37,13 @@ const AuthProvider = ({ children }) => {
 
     if (token) {
       obtenerPerfil(token);
-      console.log("hay token");
     } else {
-      console.log("no hay token");
+      setLoading(false);
     }
-  }, [auth.id]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, data }}>
+    <AuthContext.Provider value={{ auth, setAuth, loading, error, cerrarSesion }}>
       {children}
     </AuthContext.Provider>
   );

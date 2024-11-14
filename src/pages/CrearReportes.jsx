@@ -47,9 +47,16 @@ const CrearReportes = () => {
     try {
       const formDataToSend = new FormData();
       
+      // Formatear la fecha antes de enviarla
+      const formattedDate = new Date(formData.fecha_creacion).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      
       // Agregar todos los campos del formulario
       Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
+        formDataToSend.append(key, key === 'fecha_creacion' ? formattedDate : formData[key]);
       });
       
       // Agregar el archivo si existe
@@ -178,7 +185,7 @@ const CrearReportes = () => {
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
           >
             <option value="">Seleccionar Dependencia</option>
-            <option value="Facultad 1">Facultad 1</option>
+            <option value="Facultad 1">Rectorado</option>
             <option value="Facultad 2">Facultad 2</option>
           </select>
         </div>
