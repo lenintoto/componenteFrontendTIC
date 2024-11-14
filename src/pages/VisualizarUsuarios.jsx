@@ -1,7 +1,7 @@
 import React from 'react';
 import { MdDeleteForever, MdNoteAdd, MdInfo } from "react-icons/md";
 
-const ReservasPage = () => {
+const VisualizarUsuarios = () => {
   return (
     <div className="flex flex-col h-full p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Usuarios</h1>
@@ -42,8 +42,7 @@ const ReservasPage = () => {
         </table>
       </div>
     </div>
-
   );
 };
 
-export default ReservasPage;
+export default VisualizarUsuarios;

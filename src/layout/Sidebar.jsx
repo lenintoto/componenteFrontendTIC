@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import AuthContext from '../context/AuthProvider';
 
 const Sidebar = () => {
   const location = useLocation();
+  const { auth } = useContext(AuthContext);
+
+  const nombreUsuario = auth.username || auth.usernameO || 'Usuario';
 
   return (
     <div className="bg-gray-900 text-white w-64 h-screen flex flex-col">
@@ -45,7 +49,8 @@ const Sidebar = () => {
 
       <div className="w-full text-center py-4 bg-gray-800">
         <div className="text-sm">Bienvenido:</div>
-        <div className="font-bold">Usuario</div>
+        <div className="font-bold">{nombreUsuario}</div>
+
       </div>
     </div>
   );

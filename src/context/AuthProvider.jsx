@@ -10,15 +10,20 @@ const AuthProvider = ({ children }) => {
 
   const obtenerPerfil = async (token) => {
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/admin/datos/${auth.id}`;
+      const rol = localStorage.getItem('rol');
+      const url = rol === 'administrador'
+        ? `${import.meta.env.VITE_BACKEND_URL}/administrador/perfil`
+        : `${import.meta.env.VITE_BACKEND_URL}/operario/perfil`;
+
       const options = {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         }
       };
+      
       const respuesta = await axios.get(url, options);
-      setAuth(respuesta.data);
+      setAuth({ ...respuesta.data, rol }); // Incluimos el rol en los datos
     } catch (error) {
       console.error("Error al obtener perfil:", error.response ? error.response.data : error.message);
       setError("Error al obtener perfil");
@@ -29,12 +34,12 @@ const AuthProvider = ({ children }) => {
 
   const cerrarSesion = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("rol");
     setAuth({ id: "", rol: "" });
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (token) {
       obtenerPerfil(token);
     } else {

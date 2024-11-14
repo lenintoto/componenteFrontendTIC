@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import AuthContext from '../context/AuthProvider';
 
 const Inicio = () => {
+  const { auth } = useContext(AuthContext);
   
   return (
     <div className="p-6">
@@ -28,7 +30,7 @@ const Inicio = () => {
               </div>
               <div className="bg-gray-100 p-4 rounded-md shadow-md">
                 <h3 className="text-lg font-bold mb-2">Visualizar Usuarios</h3>
-                <p>(Reservas) Permite ver y gestionar las reservas de clientes. Realiza acciones como agregar notas, ver detalles o eliminar reservas.</p>
+                <p>Permite ver y gestionar los usuarios del sistema. Realiza acciones como agregar notas, ver detalles o eliminar usuarios.</p>
               </div>
             </div>
           </div>
@@ -36,11 +38,12 @@ const Inicio = () => {
         <div className="md:col-span-4 bg-gray-100 p-4 rounded-md shadow-md">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Información Personal</h2>
           <div className="space-y-2">
-            <p><strong>Username:</strong> [Username]</p>
-            <p><strong>Nombre:</strong> [Nombre]</p>
-            <p><strong>Apellido:</strong> [Apellido]</p>
-            <p><strong>Extensión:</strong> [Extensión]</p>
-            <p><strong>Email:</strong> [Email]</p>
+            <p><strong>Username:</strong> {auth.username || auth.usernameO || 'No disponible'}</p>
+            <p><strong>Nombre:</strong> {auth.nombre || 'No disponible'}</p>
+            <p><strong>Apellido:</strong> {auth.apellido || 'No disponible'}</p>
+            <p><strong>Teléfono:</strong> {auth.telefono || 'No disponible'}</p>
+            <p><strong>Email:</strong> {auth.email || 'No disponible'}</p>
+            <p><strong>Rol:</strong> {auth.rol || 'No disponible'}</p>
           </div>
         </div>
       </div>

@@ -34,45 +34,23 @@ const LoginPage = () => {
     }
 
     try {
-      const url = form.username.startsWith('admin') ? 
-        `${import.meta.env.VITE_BACKEND_URL}/administrador/loginAdmin` : 
-        `${import.meta.env.VITE_BACKEND_URL}/operario/login`
+      const esAdmin = form.username.startsWith('admin');
+      const url = esAdmin 
+        ? `${import.meta.env.VITE_BACKEND_URL}/administrador/loginAdmin`
+        : `${import.meta.env.VITE_BACKEND_URL}/operario/login`;
 
-      const respuesta = await axios.post(url, form)
+      const { data } = await axios.post(url, form);
       
-      const rol = form.username.startsWith('admin') ? 'administrador' : 'operario'
-      localStorage.setItem("token", respuesta.data.token)
-      localStorage.setItem("rol", rol)
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('rol', esAdmin ? 'administrador' : 'operario');
       
-      setAuth({
-        ...respuesta.data,
-        rol
-      })
-      
-      setMensaje({
-        respuesta: "Login exitoso",
-        tipo: true
-      })
-      
-      setForm({
-        username: "",
-        password: ""
-      })
-      
-      setTimeout(() => {
-        navigate("/inicio")
-      }, 500)
-
+      setAuth(data);
+      navigate('/inicio');
     } catch (error) {
-      console.log(error)
       setMensaje({
-        respuesta: error.response?.data?.msg || "Error al iniciar sesión",
-        tipo: false
-      })
-      setForm({
-        username: "",
-        password: ""
-      })
+        error: true,
+        msg: error.response?.data?.msg || "Hubo un error"
+      });
     }
   }
 
