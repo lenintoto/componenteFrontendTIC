@@ -41,25 +41,57 @@ const CrearReportes = () => {
     setArchivo(e.target.files[0]);
   };
 
+  const dependencias = [
+    'Consejo Politecnico',
+    'Rectorado',
+    'Vicerrectorado de Docencia',
+    'Vicerrectorado de Investación,Innovación y Vinculación',
+    'Escuela de Formación de Tecnólogos',
+    'Centros de Modelización Matematica',
+    'Museo',
+    'Observatorio Astrónomico de Quito',
+    'Auditoria Interna',
+    'Asesoria Jurídica',
+    'Planificación',
+    'Relaciones Institucionales',
+    'Comunicación',
+    'Secretaria General',
+    'Administrativo--PENDIENTE(GESTION,BODEGAS/INMUEBLES/HEMICILIO)',
+    'Financiero',
+    'Talento Humano',
+    'Gestión de la Información y Procesos',
+    'Facultad de Ciencias',
+    'Facultad de Ciencias Administrativas',
+    'Facultad de Ingeniería Química y Agroindustria',
+    'Facultad de Ingeniería Eléctrica y Electrónica',
+    'Facultad de Ingeniería en Geología y Petroleos',
+    'Facultad de Ingeniería Civíl y Ambiental',
+    'Facultad de Ingeniería en Sistemas',
+    'Departamento de Formación Básica',
+    'Departamento de Ciencias Sociales',
+    'Metal Mecanica San Bartolo',
+    'Geofisíco',
+    'Centro de Educación Continua'
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
       const formDataToSend = new FormData();
       
-      // Formatear la fecha antes de enviarla
-      const formattedDate = new Date(formData.fecha_creacion).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
+      // Formatear la fecha correctamente
+      const fecha = formData.fecha_creacion ? new Date(formData.fecha_creacion) : '';
       
       // Agregar todos los campos del formulario
       Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, key === 'fecha_creacion' ? formattedDate : formData[key]);
+        if (key === 'fecha_creacion') {
+          formDataToSend.append(key, fecha);
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
       });
       
-      // Agregar el archivo si existe
       if (archivo) {
         formDataToSend.append('archivo', archivo);
       }
@@ -82,7 +114,6 @@ const CrearReportes = () => {
         msg: 'Reporte creado exitosamente'
       });
       
-      // Limpiar el formulario
       setFormData({
         numero_acta: '',
         nombre_custodio: '',
@@ -96,6 +127,7 @@ const CrearReportes = () => {
       setArchivo(null);
 
     } catch (error) {
+      console.error('Error detallado:', error.response?.data);
       setMensaje({
         error: true,
         msg: error.response?.data?.msg || 'Error al crear el reporte'
@@ -185,8 +217,11 @@ const CrearReportes = () => {
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
           >
             <option value="">Seleccionar Dependencia</option>
-            <option value="Facultad 1">Rectorado</option>
-            <option value="Facultad 2">Facultad 2</option>
+            {dependencias.map((dep, index) => (
+              <option key={index} value={dep}>
+                {dep}
+              </option>
+            ))}
           </select>
         </div>
 

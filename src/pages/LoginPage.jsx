@@ -41,15 +41,29 @@ const LoginPage = () => {
 
       const { data } = await axios.post(url, form);
       
+      // Crear objeto completo con todos los datos necesarios
+      const userData = {
+        username: form.username,
+        rol: esAdmin ? 'administrador' : 'operario',
+        nombre: data.nombre,
+        apellido: data.apellido,
+        telefono: data.telefono,
+        email: data.email,
+        token: data.token
+      };
+
+      // Guardar token y datos
       localStorage.setItem('token', data.token);
-      localStorage.setItem('rol', esAdmin ? 'administrador' : 'operario');
+      localStorage.setItem('userData', JSON.stringify(userData));
       
-      setAuth(data);
+      // Actualizar el contexto
+      setAuth(userData);
+      
       navigate('/inicio');
     } catch (error) {
       setMensaje({
-        error: true,
-        msg: error.response?.data?.msg || "Hubo un error"
+        respuesta: error.response?.data?.msg || "Hubo un error",
+        tipo: false
       });
     }
   }
