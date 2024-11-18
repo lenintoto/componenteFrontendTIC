@@ -5,91 +5,85 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
-    // Inicializar el estado con los datos del localStorage si existen
+    const token = localStorage.getItem('token');
     const userData = localStorage.getItem('userData');
-    return userData ? JSON.parse(userData) : {};
+    if (token && userData) {
+      return JSON.parse(userData);
+    }
+    return {};
   });
+  
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    const autenticarUsuario = async () => {
+    const validarSesion = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userData = localStorage.getItem('userData');
+
+      if (!token || !userData) {
         setCargando(false);
         return;
       }
 
       try {
-        // Obtener datos del usuario del localStorage
-        const userData = localStorage.getItem('userData');
-        if (!userData) {
-          throw new Error('No user data found');
-        }
-
         const parsedUserData = JSON.parse(userData);
-        
-        // Determinar la URL basada en el rol
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        };
+
         const url = parsedUserData.rol === 'administrador'
           ? `${import.meta.env.VITE_BACKEND_URL}/administrador/perfil`
           : `${import.meta.env.VITE_BACKEND_URL}/operario/perfil`;
 
-        // Verificar con el backend
-        const { data } = await axios.get(url, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const { data } = await axios.get(url, config);
 
-        // Combinar los datos existentes con los nuevos del backend
         const updatedUserData = {
           ...parsedUserData,
           ...data,
-          username: parsedUserData.username, // Mantener el username original
-          rol: parsedUserData.rol // Mantener el rol original
+          token,
+          rol: parsedUserData.rol
         };
 
-        setAuth(updatedUserData);
         localStorage.setItem('userData', JSON.stringify(updatedUserData));
+        setAuth(updatedUserData);
 
       } catch (error) {
-        console.error('Error de autenticación:', error);
-        // Solo limpiar si es un error de autenticación
+        console.error(error);
         if (error.response?.status === 401) {
-          setAuth({});
           localStorage.removeItem('token');
           localStorage.removeItem('userData');
+          setAuth({});
         }
-      } finally {
-        setCargando(false);
       }
+
+      setCargando(false);
     };
 
-    autenticarUsuario();
+    validarSesion();
   }, []);
 
   const cerrarSesion = () => {
-    setAuth({});
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
+    setAuth({});
   };
 
-  // Función para actualizar el auth
-  const actualizarAuth = (nuevosData) => {
-    const updatedData = { ...auth, ...nuevosData };
-    setAuth(updatedData);
+  const actualizarAuth = (datos) => {
+    const updatedData = { ...auth, ...datos };
     localStorage.setItem('userData', JSON.stringify(updatedData));
+    setAuth(updatedData);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        auth,
-        setAuth: actualizarAuth,
-        cargando,
-        cerrarSesion
-      }}
-    >
+    <AuthContext.Provider value={{
+      auth,
+      setAuth: actualizarAuth,
+      cargando,
+      cerrarSesion
+    }}>
       {children}
     </AuthContext.Provider>
   );

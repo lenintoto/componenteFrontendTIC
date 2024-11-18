@@ -23,14 +23,14 @@ const LoginPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (Object.values(form).includes("")) {
+    if (!form.username || !form.password) {
       setMensaje({
         respuesta: "Todos los campos son obligatorios",
         tipo: false
-      })
-      return
+      });
+      return;
     }
 
     try {
@@ -41,32 +41,32 @@ const LoginPage = () => {
 
       const { data } = await axios.post(url, form);
       
-      // Crear objeto completo con todos los datos necesarios
+      if (!data.token) {
+        throw new Error('No se recibió el token de autenticación');
+      }
+
+      // Crear objeto con todos los datos necesarios
       const userData = {
-        username: form.username,
-        rol: esAdmin ? 'administrador' : 'operario',
-        nombre: data.nombre,
-        apellido: data.apellido,
-        telefono: data.telefono,
-        email: data.email,
-        token: data.token
+        ...data,
+        rol: esAdmin ? 'administrador' : 'operario'
       };
 
-      // Guardar token y datos
+      // Guardar datos
       localStorage.setItem('token', data.token);
       localStorage.setItem('userData', JSON.stringify(userData));
       
-      // Actualizar el contexto
+      // Actualizar contexto
       setAuth(userData);
       
       navigate('/inicio');
     } catch (error) {
+      console.error('Error de login:', error);
       setMensaje({
-        respuesta: error.response?.data?.msg || "Hubo un error",
+        respuesta: error.response?.data?.msg || "Error al iniciar sesión",
         tipo: false
       });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-500">

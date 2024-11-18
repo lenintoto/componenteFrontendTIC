@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { MdDeleteForever, MdUploadFile } from "react-icons/md";
 import axios from 'axios';
 import UploadModal from '../components/modals/UploadModal';
+import { useNavigate } from 'react-router-dom';
+import Mensaje from '../components/Alerts/Alertas';
 
 const VisualizarReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -10,11 +12,20 @@ const VisualizarReportes = () => {
     fecha_fin: '',
     numero_acta: ''
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedReporte, setSelectedReporte] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const navigate = useNavigate();
+  const [mensaje, setMensaje] = useState({ msg: '', tipo: false });
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
+
+  // Función para mostrar mensajes temporales
+  const mostrarAlerta = (msg, tipo = false) => {
+    setMensaje({ msg, tipo });
+    setMostrarMensaje(true);
+    setTimeout(() => setMostrarMensaje(false), 3000);
+  };
 
   // Obtener todos los reportes
   const obtenerReportes = async () => {
@@ -30,11 +41,9 @@ const VisualizarReportes = () => {
         }
       );
       setReportes(data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
-      setError('Error al cargar los reportes');
-      setLoading(false);
+      mostrarAlerta('Error al cargar los reportes');
     }
   };
 
@@ -42,27 +51,65 @@ const VisualizarReportes = () => {
   const filtrarReportes = async () => {
     try {
       const token = localStorage.getItem('token');
+      let params = {};
+
+      if (filtros.numero_acta.trim() && (filtros.fecha_inicio || filtros.fecha_fin)) {
+        mostrarAlerta('Por favor, use solo un tipo de filtro a la vez');
+        return;
+      }
+
+      if (filtros.numero_acta.trim()) {
+        params.numero_acta = filtros.numero_acta;
+      }
+      else if (filtros.fecha_inicio || filtros.fecha_fin) {
+        if (!filtros.fecha_inicio || !filtros.fecha_fin) {
+          mostrarAlerta('Por favor, seleccione ambas fechas');
+          return;
+        }
+        params = {
+          fecha_inicio: filtros.fecha_inicio,
+          fecha_fin: filtros.fecha_fin
+        };
+      } else {
+        obtenerReportes();
+        return;
+      }
+
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/reporte/filtar-reporte`,
         {
-          params: filtros,
+          params,
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           }
         }
       );
+
       setReportes(data);
+      if (data.length === 0) {
+        mostrarAlerta('No se encontraron reportes');
+      }
     } catch (error) {
-      console.error(error);
-      setError('Error al filtrar los reportes');
+      console.error('Error al filtrar:', error);
+      mostrarAlerta(error.response?.data?.msg || 'Error al filtrar los reportes');
     }
+  };
+
+  // Función para limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltros({
+      fecha_inicio: '',
+      fecha_fin: '',
+      numero_acta: ''
+    });
+    obtenerReportes();
   };
 
   // Eliminar reporte
   const eliminarReporte = async (id) => {
     if (!userRole) {
-      setError('No tienes permisos para eliminar reportes');
+      mostrarAlerta('No tienes permisos para eliminar reportes');
       return;
     }
 
@@ -79,10 +126,11 @@ const VisualizarReportes = () => {
           }
         }
       );
+      mostrarAlerta('Reporte eliminado correctamente', true);
       obtenerReportes();
     } catch (error) {
       console.error(error);
-      setError('Error al eliminar el reporte');
+      mostrarAlerta('Error al eliminar el reporte');
     }
   };
 
@@ -103,7 +151,7 @@ const VisualizarReportes = () => {
     obtenerReportes();
   }, []);
 
-  
+
   // Función para verificar si han pasado 30 días
   const isDentroDelPlazo = (fechaCreacion) => {
     const fechaLimite = new Date(fechaCreacion);
@@ -114,13 +162,17 @@ const VisualizarReportes = () => {
   // Verificar si el usuario es administrador
   const isAdmin = userRole === 'administrador';
 
-  if (loading) return <div>Cargando...</div>;
   if (error) return <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>;
 
   return (
     <div className="flex flex-col h-full p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Reportes</h1>
-      
+      {mostrarMensaje && (
+        <Mensaje tipo={mensaje.tipo}>
+          {mensaje.msg}
+        </Mensaje>
+      )}
+
       {reportes.length === 0 ? (
         <div className="bg-gray-200 p-4">
           <div className="alert error">No existen registros</div>
@@ -137,7 +189,8 @@ const VisualizarReportes = () => {
                   value={filtros.fecha_inicio}
                   onChange={handleFiltroChange}
                   className="p-2 border rounded-md text-gray-700"
-                />-
+                />
+                <span className="mx-2">-</span>
                 <input
                   type="date"
                   name="fecha_fin"
@@ -145,6 +198,10 @@ const VisualizarReportes = () => {
                   onChange={handleFiltroChange}
                   className="p-2 border rounded-md text-gray-700"
                 />
+              </div>
+
+              <div className="text-center">
+                <label className="block text-gray-700 mb-1">o</label>
               </div>
 
               <div>
@@ -160,12 +217,20 @@ const VisualizarReportes = () => {
               </div>
             </div>
 
-            <button 
-              onClick={filtrarReportes}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Buscar
-            </button>
+            <div className="space-x-2">
+              <button
+                onClick={filtrarReportes}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Buscar
+              </button>
+              <button
+                onClick={limpiarFiltros}
+                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Limpiar Filtros
+              </button>
+            </div>
           </div>
 
           <table className="w-full mt-5 table-auto shadow-lg bg-white">
