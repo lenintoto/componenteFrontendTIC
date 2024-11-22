@@ -20,19 +20,45 @@ const VisualizarReportes = () => {
   const [mensaje, setMensaje] = useState({ msg: '', tipo: false });
   const [mostrarMensaje, setMostrarMensaje] = useState(false);
 
-  // Función para mostrar mensajes temporales
+  useEffect(() => {
+    const verificarAutenticacion = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/');
+        return;
+      }
+
+      const userDataString = localStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setUserRole(userData.rol);
+        obtenerReportes();
+      }
+    };
+
+    verificarAutenticacion();
+  }, [navigate]);
+
   const mostrarAlerta = (msg, tipo = false) => {
     setMensaje({ msg, tipo });
     setMostrarMensaje(true);
     setTimeout(() => setMostrarMensaje(false), 3000);
   };
 
-  // Obtener todos los reportes
   const obtenerReportes = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData) return;
+
+      const endpoint = userData.rol === 'administrador'
+        ? '/reporte/listar-reportes'
+        : `/reporte/listar-reporte-operario/${userData.id}`;
+
       const { data } = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reportes`,
+        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -40,43 +66,55 @@ const VisualizarReportes = () => {
           }
         }
       );
+
+      if (data.length === 0) {
+        mostrarAlerta('No hay reportes disponibles');
+      }
       setReportes(data);
     } catch (error) {
-      console.error(error);
-      mostrarAlerta('Error al cargar los reportes');
+      console.error('Error al obtener reportes:', error);
+      mostrarAlerta(error.response?.data?.msg || 'Error al cargar los reportes');
+      if (error.response?.status === 401) {
+        localStorage.clear();
+        navigate('/');
+      }
     }
   };
 
-  // Filtrar reportes
   const filtrarReportes = async () => {
     try {
       const token = localStorage.getItem('token');
-      let params = {};
+      if (!token) return;
 
       if (filtros.numero_acta.trim() && (filtros.fecha_inicio || filtros.fecha_fin)) {
         mostrarAlerta('Por favor, use solo un tipo de filtro a la vez');
         return;
       }
 
+      let params = {};
+      let endpoint = '/reporte/filtar-reporte';
+
       if (filtros.numero_acta.trim()) {
         params.numero_acta = filtros.numero_acta;
-      }
-      else if (filtros.fecha_inicio || filtros.fecha_fin) {
-        if (!filtros.fecha_inicio || !filtros.fecha_fin) {
-          mostrarAlerta('Por favor, seleccione ambas fechas');
+      } else if (filtros.fecha_inicio && filtros.fecha_fin) {
+        if (new Date(filtros.fecha_inicio) > new Date(filtros.fecha_fin)) {
+          mostrarAlerta('La fecha de inicio no puede ser posterior a la fecha final');
           return;
         }
         params = {
           fecha_inicio: filtros.fecha_inicio,
           fecha_fin: filtros.fecha_fin
         };
+      } else if ((filtros.fecha_inicio && !filtros.fecha_fin) || (!filtros.fecha_inicio && filtros.fecha_fin)) {
+        mostrarAlerta('Por favor, seleccione ambas fechas');
+        return;
       } else {
         obtenerReportes();
         return;
       }
 
       const { data } = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/reporte/filtar-reporte`,
+        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
         {
           params,
           headers: {
@@ -88,15 +126,14 @@ const VisualizarReportes = () => {
 
       setReportes(data);
       if (data.length === 0) {
-        mostrarAlerta('No se encontraron reportes');
+        mostrarAlerta('No se encontraron reportes con los filtros aplicados');
       }
     } catch (error) {
-      console.error('Error al filtrar:', error);
+      console.error('Error al filtrar reportes:', error);
       mostrarAlerta(error.response?.data?.msg || 'Error al filtrar los reportes');
     }
   };
 
-  // Función para limpiar filtros
   const limpiarFiltros = () => {
     setFiltros({
       fecha_inicio: '',
@@ -106,14 +143,15 @@ const VisualizarReportes = () => {
     obtenerReportes();
   };
 
-  // Eliminar reporte
   const eliminarReporte = async (id) => {
-    if (!userRole) {
+    if (userRole !== 'administrador') {
       mostrarAlerta('No tienes permisos para eliminar reportes');
       return;
     }
 
-    if (!confirm('¿Está seguro de eliminar este reporte?')) return;
+    if (!confirm('¿Está seguro de eliminar este reporte? Esta acción no se puede deshacer.')) {
+      return;
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -126,15 +164,15 @@ const VisualizarReportes = () => {
           }
         }
       );
+      
       mostrarAlerta('Reporte eliminado correctamente', true);
       obtenerReportes();
     } catch (error) {
-      console.error(error);
-      mostrarAlerta('Error al eliminar el reporte');
+      console.error('Error al eliminar reporte:', error);
+      mostrarAlerta(error.response?.data?.msg || 'Error al eliminar el reporte');
     }
   };
 
-  // Manejar cambios en los filtros
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
     setFiltros(prev => ({
@@ -142,27 +180,6 @@ const VisualizarReportes = () => {
       [name]: value
     }));
   };
-
-  // Cargar reportes al montar el componente
-  useEffect(() => {
-    // Obtener el rol del usuario al cargar el componente
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    setUserRole(userData?.rol);
-    obtenerReportes();
-  }, []);
-
-
-  // Función para verificar si han pasado 30 días
-  const isDentroDelPlazo = (fechaCreacion) => {
-    const fechaLimite = new Date(fechaCreacion);
-    fechaLimite.setDate(fechaLimite.getDate() + 30);
-    return new Date() <= fechaLimite;
-  };
-
-  // Verificar si el usuario es administrador
-  const isAdmin = userRole === 'administrador';
-
-  if (error) return <div className="bg-red-100 text-red-700 p-4 rounded-lg">{error}</div>;
 
   return (
     <div className="flex flex-col h-full p-6">
@@ -245,7 +262,7 @@ const VisualizarReportes = () => {
                 <th className="p-2">Estado</th>
                 <th className="p-2">Observaciones</th>
                 <th className="p-2">Archivo</th>
-                {isAdmin && <th className="p-2">Acciones</th>}
+                {userRole === 'administrador' && <th className="p-2">Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -262,22 +279,11 @@ const VisualizarReportes = () => {
                   <td>
                     {reporte.archivo ? (
                       <span className="text-green-600">Cargado</span>
-                    ) : isDentroDelPlazo(reporte.fecha_creacion) ? (
-                      <button
-                        onClick={() => {
-                          setSelectedReporte(reporte);
-                          setShowUploadModal(true);
-                        }}
-                        className="flex items-center justify-center space-x-1 text-blue-600 hover:text-blue-800"
-                      >
-                        <MdUploadFile className="h-5 w-5" />
-                        <span>Subir</span>
-                      </button>
                     ) : (
-                      <span className="text-red-600">Plazo vencido</span>
+                      <span className="text-red-600">No disponible</span>
                     )}
                   </td>
-                  {isAdmin && (
+                  {userRole === 'administrador' && (
                     <td className="py-2 text-center">
                       <button
                         onClick={() => eliminarReporte(reporte._id)}

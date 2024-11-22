@@ -40,25 +40,27 @@ const LoginPage = () => {
         : `${import.meta.env.VITE_BACKEND_URL}/operario/login`;
 
       const { data } = await axios.post(url, form);
-      
-      if (!data.token) {
-        throw new Error('No se recibió el token de autenticación');
+
+      if (!data._id || !data.token) {
+        throw new Error('Datos de autenticación incompletos');
       }
 
-      // Crear objeto con todos los datos necesarios
       const userData = {
-        ...data,
-        rol: esAdmin ? 'administrador' : 'operario'
+        id: data._id,
+        nombre: data.nombre,
+        rol: esAdmin ? 'administrador' : 'operario',
+        username: data.username || data.usernameO,
+        email: data.email
       };
 
-      // Guardar datos
-      localStorage.setItem('token', data.token);
       localStorage.setItem('userData', JSON.stringify(userData));
-      
-      // Actualizar contexto
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('rol', userData.rol);
+
       setAuth(userData);
-      
+
       navigate('/inicio');
+
     } catch (error) {
       console.error('Error de login:', error);
       setMensaje({

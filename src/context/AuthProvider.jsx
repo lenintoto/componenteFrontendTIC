@@ -35,8 +35,8 @@ const AuthProvider = ({ children }) => {
         };
 
         const url = parsedUserData.rol === 'administrador'
-          ? `${import.meta.env.VITE_BACKEND_URL}/administrador/perfil`
-          : `${import.meta.env.VITE_BACKEND_URL}/operario/perfil`;
+          ? `${import.meta.env.VITE_BACKEND_URL}/administrador/perfil-admin`
+          : `${import.meta.env.VITE_BACKEND_URL}/operario/perfil-operario`;
 
         const { data } = await axios.get(url, config);
 
@@ -66,6 +66,7 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const cerrarSesion = () => {
+    localStorage.removeItem('rol');
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     setAuth({});

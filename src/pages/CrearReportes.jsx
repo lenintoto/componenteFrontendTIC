@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Asegúrate de tener axios instalado
+import axios from 'axios';
 
 const CrearReportes = () => {
   const [isCompleted, setIsCompleted] = useState(false);
@@ -11,14 +11,48 @@ const CrearReportes = () => {
     cantidad_bienes: '',
     observacion: '',
     estado: 'pendiente',
+    id_operario: '',
   });
   const [archivo, setArchivo] = useState(null);
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    setUserRole(userData?.rol);
+    try {
+      const userDataString = localStorage.getItem('userData');
+      if (!userDataString) {
+        setMensaje({
+          error: true,
+          msg: 'No hay datos de usuario. Por favor, inicie sesión nuevamente.'
+        });
+        return;
+      }
+
+      const userData = JSON.parse(userDataString);
+      
+      if (!userData || !userData.rol || !userData.id) {
+        console.error('Datos de usuario incompletos:', userData);
+        setMensaje({
+          error: true,
+          msg: 'Datos de usuario incompletos. Por favor, inicie sesión nuevamente.'
+        });
+        return;
+      }
+
+      console.log('Datos de usuario cargados:', userData);
+      
+      setUserRole(userData.rol);
+      setFormData(prevData => ({
+        ...prevData,
+        id_operario: userData.id
+      }));
+    } catch (error) {
+      console.error('Error al cargar datos de usuario:', error);
+      setMensaje({
+        error: true,
+        msg: 'Error al cargar datos de usuario. Por favor, inicie sesión nuevamente.'
+      });
+    }
   }, []);
 
   const handleInputChange = (e) => {
@@ -78,12 +112,43 @@ const CrearReportes = () => {
     e.preventDefault();
     
     try {
+      if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.Dependencia || !formData.cantidad_bienes) {
+        setMensaje({
+          error: true,
+          msg: 'Por favor complete todos los campos obligatorios'
+        });
+        return;
+      }
+
       const formDataToSend = new FormData();
+      const userData = JSON.parse(localStorage.getItem('userData'));
       
-      // Formatear la fecha correctamente
+      if (!userData || !userData.id) {
+        setMensaje({
+          error: true,
+          msg: 'Error de autenticación. Por favor, inicie sesión nuevamente.'
+        });
+        return;
+      }
+
+      if (userRole === 'operario' && !isCompleted && archivo) {
+        setMensaje({
+          error: true,
+          msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
+        });
+        return;
+      }
+
+      if (userRole === 'administrador' && isCompleted && !archivo) {
+        setMensaje({
+          error: true,
+          msg: 'Debe adjuntar un archivo cuando el acta está firmada'
+        });
+        return;
+      }
+
       const fecha = formData.fecha_creacion ? new Date(formData.fecha_creacion) : '';
       
-      // Agregar todos los campos del formulario
       Object.keys(formData).forEach(key => {
         if (key === 'fecha_creacion') {
           formDataToSend.append(key, fecha);
@@ -91,43 +156,44 @@ const CrearReportes = () => {
           formDataToSend.append(key, formData[key]);
         }
       });
+
+      if (userRole === 'operario') {
+        formDataToSend.append('id_operario', userData.id);
+      }
       
       if (archivo) {
         formDataToSend.append('archivo', archivo);
       }
 
       const token = localStorage.getItem('token');
+      if (!token) {
+        setMensaje({
+          error: true,
+          msg: 'Token no encontrado. Por favor, inicie sesión nuevamente.'
+        });
+        return;
+      }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`,
-        formDataToSend,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
-          },
+      const url = userRole === 'administrador'
+        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
+        : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
         }
-      );
+      };
+
+      const { data } = await axios.post(url, formDataToSend, config);
 
       setMensaje({
         error: false,
-        msg: 'Reporte creado exitosamente'
+        msg: data.msg || 'Reporte creado con éxito'
       });
-      
-      setFormData({
-        numero_acta: '',
-        nombre_custodio: '',
-        fecha_creacion: '',
-        Dependencia: '',
-        cantidad_bienes: '',
-        observacion: '',
-        estado: 'pendiente',
-      });
-      setIsCompleted(false);
-      setArchivo(null);
 
     } catch (error) {
-      console.error('Error detallado:', error.response?.data);
+      console.error('Error al crear el reporte:', error);
       setMensaje({
         error: true,
         msg: error.response?.data?.msg || 'Error al crear el reporte'
@@ -150,7 +216,7 @@ const CrearReportes = () => {
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="numero_acta" className="block text-sm font-medium text-gray-700">
-            N° de Acta
+            N° de Acta <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -165,7 +231,7 @@ const CrearReportes = () => {
 
         <div>
           <label htmlFor="nombre_custodio" className="block text-sm font-medium text-gray-700">
-            Nombre del Custodio
+            Nombre del Custodio <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -180,7 +246,7 @@ const CrearReportes = () => {
 
         <div>
           <label htmlFor="fecha_creacion" className="block text-sm font-medium text-gray-700">
-            Fecha de Asignación
+            Fecha de Asignación <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -207,7 +273,7 @@ const CrearReportes = () => {
 
         <div>
           <label htmlFor="Dependencia" className="block text-sm font-medium text-gray-700">
-            Dependencia
+            Dependencia <span className="text-red-500">*</span>
           </label>
           <select
             name="Dependencia"
@@ -227,7 +293,7 @@ const CrearReportes = () => {
 
         <div>
           <label htmlFor="cantidad_bienes" className="block text-sm font-medium text-gray-700">
-            Cantidad de Bienes
+            Cantidad de Bienes <span className="text-red-500">*</span>
           </label>
           <input
             type="number"

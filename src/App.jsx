@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './layout/Layout';
 import Inicio from './pages/Inicio';
 import CrearReportes from './pages/CrearReportes';
-import CrearUsuario from './pages/CrearUsuario';
+//import CrearUsuario from './pages/CrearUsuario';
 import VisualizarReportes from './pages/VisualizarReportes';
 import VisualizarUsuarios from './pages/VisualizarUsuarios';
 import LoginPage from './pages/LoginPage';
@@ -34,11 +34,11 @@ function App() {
                 <VisualizarReportes />
               </PrivateRoute>
             } />
-            <Route path="/crear-usuarios" element={
+            {/*<Route path="/crear-usuarios" element={
               <PrivateRoute>
                 <CrearUsuario />
               </PrivateRoute>
-            } />
+            } />*/}
             <Route path="/visualizar-usuarios" element={
               <PrivateRoute>
                 <VisualizarUsuarios />

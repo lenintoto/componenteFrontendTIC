@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { MdClose } from 'react-icons/md';
 
-const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess }) => {
+const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess, userRole }) => {
   const [archivo, setArchivo] = useState(null);
   const [uploadError, setUploadError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [firmado, setFirmado] = useState(false);
 
   if (!isOpen) return null;
 
@@ -16,15 +16,24 @@ const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess }) => {
       return;
     }
 
-    setLoading(true);
+    if (!firmado) {
+      setUploadError('Por favor confirme que el documento está firmado');
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('archivo', archivo);
       formData.append('estado', 'firmado');
 
       const token = localStorage.getItem('token');
+      
+      const endpoint = userRole === 'administrador' 
+        ? `/reporte/actualizar-reporte/${reporte._id}`
+        : `/reporte/actualizar-reporte-operario/${reporte._id}`;
+
       await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/reporte/actualizar-reporte-operario/${reporte._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
         formData,
         {
           headers: {
@@ -38,14 +47,13 @@ const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess }) => {
       handleClose();
     } catch (error) {
       setUploadError(error.response?.data?.msg || 'Error al subir el archivo');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleClose = () => {
     setArchivo(null);
     setUploadError(null);
+    setFirmado(false);
     onClose();
   };
 
@@ -80,21 +88,36 @@ const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess }) => {
             />
           </div>
 
+          <div className="mb-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={firmado}
+                onChange={(e) => setFirmado(e.target.checked)}
+                className="form-checkbox h-5 w-5 text-blue-500"
+              />
+              <span className="text-sm text-gray-700">Firmado</span>
+            </label>
+          </div>
+
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={handleClose}
               className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
-              disabled={loading}
+              className={`px-4 py-2 rounded text-white transition-all duration-300 ${
+                firmado && archivo
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+              disabled={!firmado || !archivo}
             >
-              {loading ? 'Subiendo...' : 'Subir'}
+              Subir
             </button>
           </div>
         </form>
