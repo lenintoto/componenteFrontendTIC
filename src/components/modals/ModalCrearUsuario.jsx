@@ -122,10 +122,10 @@ const ModalCrearUsuario = ({ isOpen, onClose, onUserCreated }) => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700">Teléfono:</label>
+              <label className="block text-gray-700">Extensión:</label>
               <input
                 type="tel"
-                name="telefono"
+                name="extension"
                 value={formData.telefono}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"

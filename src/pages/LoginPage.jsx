@@ -120,13 +120,16 @@ const LoginPage = () => {
         </form>
         <div className="text-center">
           <p className="text-gray-700 text-sm">
-            Forgot your password?{' '}
-            <Link to="/register" className="text-blue-500">
-              Sign up!
+            Olvidaste tu contraseña?{' '}
+            <Link to="/recuperar-contrasena" className="text-blue-500">
+              Recuperala!
             </Link>
           </p>
         </div>
       </div>
+      <footer className="absolute bottom-0 w-full text-center py-4 text-gray-700 bg-gray-100">
+        <p>:D</p>
+      </footer>
     </div>
   );
 };

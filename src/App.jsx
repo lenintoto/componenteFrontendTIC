@@ -7,7 +7,8 @@ import CrearReportes from './pages/CrearReportes';
 import VisualizarReportes from './pages/VisualizarReportes';
 import VisualizarUsuarios from './pages/VisualizarUsuarios';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import RecoverPasswordPage from './pages/RecoverPasswordPage';
+import NewPasswordPage from './pages/NewPasswordPage';
 import { AuthProvider } from './context/AuthProvider';
 import { NotFound } from './pages/NotFound';
 //import { Forbidden } from './pages/Forbidden';
@@ -46,7 +47,8 @@ function App() {
             } />
           </Route>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/recuperar-contrasena" element={<RecoverPasswordPage />} />
+          <Route path="/nuevo-password/:token" element={<NewPasswordPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>

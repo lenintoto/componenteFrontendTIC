@@ -37,14 +37,34 @@ const Inicio = () => {
         </div>
         <div className="md:col-span-4 bg-gray-100 p-4 rounded-md shadow-md">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Información Personal</h2>
-          <div className="space-y-2">
-            <p><strong>Username:</strong> {auth.username || auth.usernameO || 'No disponible'}</p>
-            <p><strong>Nombre:</strong> {auth.nombre || 'No disponible'}</p>
-            <p><strong>Apellido:</strong> {auth.apellido || 'No disponible'}</p>
-            <p><strong>Teléfono:</strong> {auth.telefono || 'No disponible'}</p>
-            <p><strong>Email:</strong> {auth.email || 'No disponible'}</p>
-            <p><strong>Rol:</strong> {auth.rol || 'No disponible'}</p>
-          </div>
+          <table className="min-w-full bg-white border border-gray-300">
+            <tbody>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Username:</td>
+                <td className="px-4 py-2">{auth.username || auth.usernameO || 'No disponible'}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Nombre:</td>
+                <td className="px-4 py-2">{auth.nombre || 'No disponible'}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Apellido:</td>
+                <td className="px-4 py-2">{auth.apellido || 'No disponible'}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Teléfono:</td>
+                <td className="px-4 py-2">Ext-{auth.telefono || 'No disponible'}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Email:</td>
+                <td className="px-4 py-2">{auth.email || 'No disponible'}</td>
+              </tr>
+              <tr className="border-b">
+                <td className="px-4 py-2 font-semibold text-gray-700">Rol:</td>
+                <td className="px-4 py-2">{auth.rol || 'No disponible'}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

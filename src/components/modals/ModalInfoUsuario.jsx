@@ -25,8 +25,8 @@ const ModalInfoUsuario = ({ isOpen, onClose, usuario }) => {
             <p className="text-gray-600">{usuario.apellido}</p>
           </div>
           <div>
-            <p className="font-semibold">Teléfono:</p>
-            <p className="text-gray-600">{usuario.telefono || 'No especificado'}</p>
+            <p className="font-semibold">Extensión:</p>
+            <p className="text-gray-600">Ext-{usuario.telefono || 'No especificado'}</p>
           </div>
           <div>
             <p className="font-semibold">Email:</p>
