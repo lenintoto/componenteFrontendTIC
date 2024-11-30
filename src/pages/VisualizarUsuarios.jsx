@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdDeleteForever, MdNoteAdd, MdInfo, MdPersonAdd } from "react-icons/md";
 import ModalCrearUsuario from '../components/modals/ModalCrearUsuario';
 import ModalEditarUsuario from '../components/modals/ModalEditarUsuario';
 import ModalInfoUsuario from '../components/modals/ModalInfoUsuario';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/AuthProvider';
 
 const VisualizarUsuarios = () => {
+  const { auth } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -15,9 +17,17 @@ const VisualizarUsuarios = () => {
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (auth.rol === 'operario') {
+      navigate('/forbidden');
+      return;
+    }
+    obtenerUsuarios();
+  }, [auth, navigate]);
+
   const obtenerUsuarios = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = auth.token;
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/listar-operarios`,
         {
@@ -36,15 +46,11 @@ const VisualizarUsuarios = () => {
     }
   };
 
-  useEffect(() => {
-    obtenerUsuarios();
-  }, []);
-
   const eliminarUsuario = async (id) => {
     if (!confirm('¿Está seguro de eliminar este usuario?')) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = auth.token;
       await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/admin/estado-operario/${id}`,
         {},

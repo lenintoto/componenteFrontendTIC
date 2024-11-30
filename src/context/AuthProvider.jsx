@@ -12,8 +12,6 @@ const AuthProvider = ({ children }) => {
     }
     return {};
   });
-  
-  const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
     const validarSesion = async () => {
@@ -21,7 +19,6 @@ const AuthProvider = ({ children }) => {
       const userData = localStorage.getItem('userData');
 
       if (!token || !userData) {
-        setCargando(false);
         return;
       }
 
@@ -53,13 +50,12 @@ const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error(error);
         if (error.response?.status === 401) {
+          localStorage.removeItem('rol');
           localStorage.removeItem('token');
           localStorage.removeItem('userData');
           setAuth({});
         }
       }
-
-      setCargando(false);
     };
 
     validarSesion();
@@ -82,7 +78,6 @@ const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{
       auth,
       setAuth: actualizarAuth,
-      cargando,
       cerrarSesion
     }}>
       {children}

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdDeleteForever, MdUploadFile } from "react-icons/md";
 import axios from 'axios';
 import UploadModal from '../components/modals/UploadModal';
 import { useNavigate } from 'react-router-dom';
 import Mensaje from '../components/Alerts/Alertas';
+import AuthContext from '../context/AuthProvider';
 
 const VisualizarReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -19,6 +20,7 @@ const VisualizarReportes = () => {
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState({ msg: '', tipo: false });
   const [mostrarMensaje, setMostrarMensaje] = useState(false);
+  const { auth } = useContext(AuthContext);
 
   useEffect(() => {
     const verificarAutenticacion = () => {
@@ -47,18 +49,18 @@ const VisualizarReportes = () => {
 
   const obtenerReportes = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = auth?.token;
       if (!token) return;
 
-      const userData = JSON.parse(localStorage.getItem('userData'));
+      const userData = auth?.userData;
       if (!userData) return;
 
-      const endpoint = userData.rol === 'administrador'
-        ? '/reporte/listar-reportes'
-        : `/reporte/listar-reporte-operario/${userData.id}`;
-
+      const endpoint = userData.rol === 'administrador' 
+        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reportes` 
+        : `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reporte-operario/${userData.id}`;
+        
       const { data } = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
+        endpoint,
         {
           headers: {
             'Content-Type': 'application/json',
