@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
+    const rol = localStorage.getItem('rol');
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('userData');
     if (token && userData) {
@@ -15,6 +16,7 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const validarSesion = async () => {
+      const rol = localStorage.getItem('rol');
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('userData');
 

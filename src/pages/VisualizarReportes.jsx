@@ -4,7 +4,7 @@ import axios from 'axios';
 import UploadModal from '../components/modals/UploadModal';
 import { useNavigate } from 'react-router-dom';
 import Mensaje from '../components/Alerts/Alertas';
-import AuthContext from '../context/AuthProvider';
+import AuthContext from '../context/AuthProvider'; 
 
 const VisualizarReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -52,12 +52,9 @@ const VisualizarReportes = () => {
       const token = auth?.token;
       if (!token) return;
 
-      const userData = auth?.userData;
-      if (!userData) return;
-
-      const endpoint = userData.rol === 'administrador' 
+      const endpoint = auth.rol === 'administrador' 
         ? `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reportes` 
-        : `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reporte-operario/${userData.id}`;
+        : `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reporte-operario/${auth._id}`;
         
       const { data } = await axios.get(
         endpoint,

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthProvider';
 import ModalActualizarContraseña from '../components/ModalActualizarContraseña';
 import axios from 'axios';
@@ -6,9 +6,20 @@ import axios from 'axios';
 const Inicio = () => {
   const { auth } = useContext(AuthContext);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userData, setUserData] = useState(auth);
 
-  const handleUpdatePassword = async (oldPassword,newPassword, confirmPassword) => {
+  useEffect(() => {
+    setUserData(auth);
+  }, [auth]);
+
+  const handleUpdatePassword = async (oldPassword, newPassword, confirmPassword) => {
     try {
+      const token = auth.token;
+      if (!token) {
+        console.error('No hay token de autenticación');
+        return;
+      }
+
       const endpoint = auth.rol === 'administrador' 
         ? `${import.meta.env.VITE_BACKEND_URL}/administrador/cambiar-password` 
         : `${import.meta.env.VITE_BACKEND_URL}/operario/cambiar-password`;
@@ -19,15 +30,15 @@ const Inicio = () => {
         confirmarPassword: confirmPassword,
       }, {
         headers: {
-          'Authorization': `Bearer ${auth.token}`,
+          'Authorization': `Bearer ${token}`,
         }
       });
 
       console.log(response.data.msg);
       setModalOpen(false);
     } catch (error) {
-      console.error("Error al actualizar la contraseña:", error.response.data.msg);
-      alert(error.response.data.msg);
+      console.error("Error al actualizar la contraseña:", error.response?.data?.msg || 'Error desconocido');
+      alert(error.response?.data?.msg || 'Error al actualizar la contraseña');
     }
   };
 
@@ -68,27 +79,27 @@ const Inicio = () => {
             <tbody>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Username:</td>
-                <td className="px-4 py-2">{auth.username || auth.usernameO || 'No disponible'}</td>
+                <td className="px-4 py-2">{userData.username || userData.usernameO || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Nombre:</td>
-                <td className="px-4 py-2">{auth.nombre || 'No disponible'}</td>
+                <td className="px-4 py-2">{userData.nombre || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Apellido:</td>
-                <td className="px-4 py-2">{auth.apellido || 'No disponible'}</td>
+                <td className="px-4 py-2">{userData.apellido || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Teléfono:</td>
-                <td className="px-4 py-2">Ext-{auth.telefono || 'No disponible'}</td>
+                <td className="px-4 py-2">Ext-{userData.telefono || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Email:</td>
-                <td className="px-4 py-2">{auth.email || 'No disponible'}</td>
+                <td className="px-4 py-2">{userData.email || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Rol:</td>
-                <td className="px-4 py-2">{auth.rol || 'No disponible'}</td>
+                <td className="px-4 py-2">{userData.rol || 'No disponible'}</td>
               </tr>
               <tr>
                 <td colSpan="2" className="px-4 py-2 text-center">
@@ -106,7 +117,7 @@ const Inicio = () => {
             isOpen={modalOpen} 
             onClose={() => setModalOpen(false)} 
             onUpdate={handleUpdatePassword} 
-            role={auth.rol}
+            role={userData.rol}
           />
         </div>
       </div>
