@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import AuthContext from '../context/AuthProvider';
 
 const CrearReportes = () => {
+  const { auth } = useContext(AuthContext);
   const [isCompleted, setIsCompleted] = useState(false);
   const [formData, setFormData] = useState({
     numero_acta: '',
@@ -11,49 +13,19 @@ const CrearReportes = () => {
     cantidad_bienes: '',
     observacion: '',
     estado: 'pendiente',
-    id_operario: '',
+    operarioId: auth._id || '',
   });
   const [archivo, setArchivo] = useState(null);
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
-  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    try {
-      const userDataString = localStorage.getItem('userData');
-      if (!userDataString) {
-        setMensaje({
-          error: true,
-          msg: 'No hay datos de usuario. Por favor, inicie sesión nuevamente.'
-        });
-        return;
-      }
-
-      const userData = JSON.parse(userDataString);
-      
-      if (!userData || !userData.rol || !userData.id) {
-        console.error('Datos de usuario incompletos:', userData);
-        setMensaje({
-          error: true,
-          msg: 'Datos de usuario incompletos. Por favor, inicie sesión nuevamente.'
-        });
-        return;
-      }
-
-      console.log('Datos de usuario cargados:', userData);
-      
-      setUserRole(userData.rol);
+    if (auth) {
       setFormData(prevData => ({
         ...prevData,
-        id_operario: userData.id
+        operarioId: auth._id || '',
       }));
-    } catch (error) {
-      console.error('Error al cargar datos de usuario:', error);
-      setMensaje({
-        error: true,
-        msg: 'Error al cargar datos de usuario. Por favor, inicie sesión nuevamente.'
-      });
     }
-  }, []);
+  }, [auth]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -110,7 +82,7 @@ const CrearReportes = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.Dependencia || !formData.cantidad_bienes) {
         setMensaje({
@@ -121,17 +93,8 @@ const CrearReportes = () => {
       }
 
       const formDataToSend = new FormData();
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      
-      if (!userData || !userData.id) {
-        setMensaje({
-          error: true,
-          msg: 'Error de autenticación. Por favor, inicie sesión nuevamente.'
-        });
-        return;
-      }
 
-      if (userRole === 'operario' && !isCompleted && archivo) {
+      if (auth.rol === 'operario' && !isCompleted && archivo) {
         setMensaje({
           error: true,
           msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
@@ -139,7 +102,7 @@ const CrearReportes = () => {
         return;
       }
 
-      if (userRole === 'administrador' && isCompleted && !archivo) {
+      if (auth.rol === 'administrador' && isCompleted && !archivo) {
         setMensaje({
           error: true,
           msg: 'Debe adjuntar un archivo cuando el acta está firmada'
@@ -148,7 +111,7 @@ const CrearReportes = () => {
       }
 
       const fecha = formData.fecha_creacion ? new Date(formData.fecha_creacion) : '';
-      
+
       Object.keys(formData).forEach(key => {
         if (key === 'fecha_creacion') {
           formDataToSend.append(key, fecha);
@@ -157,10 +120,6 @@ const CrearReportes = () => {
         }
       });
 
-      if (userRole === 'operario') {
-        formDataToSend.append('id_operario', userData.id);
-      }
-      
       if (archivo) {
         formDataToSend.append('archivo', archivo);
       }
@@ -174,13 +133,13 @@ const CrearReportes = () => {
         return;
       }
 
-      const url = userRole === 'administrador'
+      const url = auth.rol === 'administrador'
         ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
         : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
 
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         }
       };
@@ -204,11 +163,10 @@ const CrearReportes = () => {
   return (
     <div className="max-w-md mx-auto mt-10 p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Registro de Actas</h1>
-      
+
       {mensaje.msg && (
-        <div className={`p-4 mb-4 rounded-lg ${
-          mensaje.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-        }`}>
+        <div className={`p-4 mb-4 rounded-lg ${mensaje.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+          }`}>
           {mensaje.msg}
         </div>
       )}
@@ -320,7 +278,7 @@ const CrearReportes = () => {
           </label>
         </div>
 
-        {(userRole === 'administrador' || isCompleted) && (
+        {(auth.rol === 'administrador' || isCompleted) && (
           <div>
             <label htmlFor="archivo" className="block text-sm font-medium text-gray-700">
               Subir Archivos

@@ -277,9 +277,17 @@ const VisualizarReportes = () => {
                   <td>{reporte.observacion}</td>
                   <td>
                     {reporte.archivo ? (
-                      <span className="text-green-600">Cargado</span>
+                      <a href={`${import.meta.env.VITE_BACKEND_URL}/${reporte.archivo}`} className="text-green-600" target="_blank" rel="noopener noreferrer">Cargado</a>
                     ) : (
-                      <span className="text-red-600">No disponible</span>
+                      <button
+                        onClick={() => {
+                          setSelectedReporte(reporte);
+                          setShowUploadModal(true);
+                        }}
+                        className="text-blue-600"
+                      >
+                        Subir
+                      </button>
                     )}
                   </td>
                   {userRole === 'administrador' && (
