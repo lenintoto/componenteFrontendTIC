@@ -10,7 +10,7 @@ const CrearReportes = () => {
     numero_acta: '',
     nombre_custodio: '',
     fecha_creacion: '',
-    Dependencia: '',
+    dependencias: [],
     cantidad_bienes: '',
     observacion: '',
     estado: 'pendiente',
@@ -30,6 +30,10 @@ const CrearReportes = () => {
     }
   }, [auth]);
 
+  useEffect(() => {
+    fetchDependencias();
+  }, []);
+
   const fetchDependencias = async () => {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/listar`);
@@ -38,10 +42,6 @@ const CrearReportes = () => {
       console.error('Error fetching dependencies:', error);
     }
   };
-
-  useEffect(() => {
-    fetchDependencias();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +66,7 @@ const CrearReportes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.Dependencia || !formData.cantidad_bienes) {
+    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.dependencias.length || !formData.cantidad_bienes) {
         setMensaje({
             error: true,
             msg: 'Por favor complete todos los campos obligatorios'
@@ -219,16 +219,17 @@ const CrearReportes = () => {
             Dependencia <span className="text-red-500">*</span>
           </label>
           <select
-            name="Dependencia"
-            id="Dependencia"
-            value={formData.Dependencia}
+            name="dependencias"
+            id="dependencias"
+            multiple
+            value={formData.dependencias}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
           >
-            <option value="">Seleccionar Dependencia</option>
-            {dependencias.map((dep, index) => (
-              <option key={index} value={dep}>
-                {dep}
+            <option value="">Seleccionar Dependencias</option>
+            {dependencias.map((dep) => (
+              <option key={dep._id} value={dep._id}>
+                {dep.nombre}
               </option>
             ))}
           </select>
