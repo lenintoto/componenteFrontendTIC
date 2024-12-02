@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { MdClose } from 'react-icons/md';
+import AuthContext from '../../context/AuthProvider';
 
-const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess, userRole }) => {
+const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess }) => {
+  const { auth } = useContext(AuthContext);
   const [archivo, setArchivo] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [firmado, setFirmado] = useState(false);
@@ -28,7 +30,7 @@ const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess, userRole }) =>
 
       const token = localStorage.getItem('token');
       
-      const endpoint = userRole === 'administrador' 
+      const endpoint = auth.rol === 'administrador' 
         ? `/reporte/actualizar-reporte/${reporte._id}`
         : `/reporte/actualizar-reporte-operario/${reporte._id}`;
 
@@ -37,7 +39,7 @@ const UploadModal = ({ isOpen, onClose, reporte, onUploadSuccess, userRole }) =>
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data', 
             Authorization: `Bearer ${token}`
           }
         }

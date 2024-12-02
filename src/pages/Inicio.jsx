@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthProvider';
-import ModalActualizarContraseña from '../components/ModalActualizarContraseña';
+import ModalActualizarContraseña from '../components/modals/ModalActualizarContraseña';
 import axios from 'axios';
 
 const Inicio = () => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import AuthContext from '../context/AuthProvider';
+import DependenciaModal from '../components/modals/ModalDependencias';
 
 const CrearReportes = () => {
   const { auth } = useContext(AuthContext);
@@ -17,6 +18,8 @@ const CrearReportes = () => {
   });
   const [archivo, setArchivo] = useState(null);
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
+  const [dependencias, setDependencias] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (auth) {
@@ -26,6 +29,19 @@ const CrearReportes = () => {
       }));
     }
   }, [auth]);
+
+  const fetchDependencias = async () => {
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/listar`);
+      setDependencias(data);
+    } catch (error) {
+      console.error('Error fetching dependencies:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDependencias();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,122 +63,91 @@ const CrearReportes = () => {
     setArchivo(e.target.files[0]);
   };
 
-  const dependencias = [
-    'Consejo Politecnico',
-    'Rectorado',
-    'Vicerrectorado de Docencia',
-    'Vicerrectorado de Investación,Innovación y Vinculación',
-    'Escuela de Formación de Tecnólogos',
-    'Centros de Modelización Matematica',
-    'Museo',
-    'Observatorio Astrónomico de Quito',
-    'Auditoria Interna',
-    'Asesoria Jurídica',
-    'Planificación',
-    'Relaciones Institucionales',
-    'Comunicación',
-    'Secretaria General',
-    'Administrativo--PENDIENTE(GESTION,BODEGAS/INMUEBLES/HEMICILIO)',
-    'Financiero',
-    'Talento Humano',
-    'Gestión de la Información y Procesos',
-    'Facultad de Ciencias',
-    'Facultad de Ciencias Administrativas',
-    'Facultad de Ingeniería Química y Agroindustria',
-    'Facultad de Ingeniería Eléctrica y Electrónica',
-    'Facultad de Ingeniería en Geología y Petroleos',
-    'Facultad de Ingeniería Civíl y Ambiental',
-    'Facultad de Ingeniería en Sistemas',
-    'Departamento de Formación Básica',
-    'Departamento de Ciencias Sociales',
-    'Metal Mecanica San Bartolo',
-    'Geofisíco',
-    'Centro de Educación Continua'
-  ];
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.Dependencia || !formData.cantidad_bienes) {
+        setMensaje({
+            error: true,
+            msg: 'Por favor complete todos los campos obligatorios'
+        });
+        return;
+    }
+
+    if (auth.rol === 'operario') {
+        if (isCompleted) {
+            setMensaje({
+                error: true,
+                msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
+            });
+            return;
+        }
+    }
+
     try {
-      if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.Dependencia || !formData.cantidad_bienes) {
-        setMensaje({
-          error: true,
-          msg: 'Por favor complete todos los campos obligatorios'
+        const formDataToSend = new FormData();
+
+        Object.keys(formData).forEach(key => {
+            formDataToSend.append(key, formData[key]);
         });
-        return;
-      }
 
-      const formDataToSend = new FormData();
-
-      if (auth.rol === 'operario' && !isCompleted && archivo) {
-        setMensaje({
-          error: true,
-          msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
-        });
-        return;
-      }
-
-      if (auth.rol === 'administrador' && isCompleted && !archivo) {
-        setMensaje({
-          error: true,
-          msg: 'Debe adjuntar un archivo cuando el acta está firmada'
-        });
-        return;
-      }
-
-      const fecha = formData.fecha_creacion ? new Date(formData.fecha_creacion) : '';
-
-      Object.keys(formData).forEach(key => {
-        if (key === 'fecha_creacion') {
-          formDataToSend.append(key, fecha);
-        } else {
-          formDataToSend.append(key, formData[key]);
+        if (archivo) {
+            formDataToSend.append('archivo', archivo);
         }
-      });
 
-      if (archivo) {
-        formDataToSend.append('archivo', archivo);
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setMensaje({
-          error: true,
-          msg: 'Token no encontrado. Por favor, inicie sesión nuevamente.'
-        });
-        return;
-      }
-
-      const url = auth.rol === 'administrador'
-        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
-        : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
-
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setMensaje({
+                error: true,
+                msg: 'Token no encontrado. Por favor, inicie sesión nuevamente.'
+            });
+            return;
         }
-      };
 
-      const { data } = await axios.post(url, formDataToSend, config);
+        const url = auth.rol === 'administrador'
+            ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
+            : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
 
-      setMensaje({
-        error: false,
-        msg: data.msg || 'Reporte creado con éxito'
-      });
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+            }
+        };
+
+        const { data } = await axios.post(url, formDataToSend, config);
+
+        setMensaje({
+            error: false,
+            msg: data.msg || 'Reporte creado con éxito'
+        });
 
     } catch (error) {
-      console.error('Error al crear el reporte:', error);
-      setMensaje({
-        error: true,
-        msg: error.response?.data?.msg || 'Error al crear el reporte'
-      });
+        console.error('Error al crear el reporte:', error);
+        setMensaje({
+            error: true,
+            msg: error.response?.data?.msg || 'Error al crear el reporte'
+        });
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Registro de Actas</h1>
+
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="mb-4 bg-green-500 text-white py-2 px-4 rounded-lg"
+      >
+        Manage Dependencias
+      </button>
+
+      <DependenciaModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        dependencias={dependencias}
+        refreshDependencias={fetchDependencias}
+      />
 
       {mensaje.msg && (
         <div className={`p-4 mb-4 rounded-lg ${mensaje.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
@@ -277,8 +262,8 @@ const CrearReportes = () => {
             Firmado
           </label>
         </div>
-
-        {(auth.rol === 'administrador' || isCompleted) && (
+  
+        {(isCompleted) && (
           <div>
             <label htmlFor="archivo" className="block text-sm font-medium text-gray-700">
               Subir Archivos
