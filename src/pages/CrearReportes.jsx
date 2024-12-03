@@ -10,7 +10,7 @@ const CrearReportes = () => {
     numero_acta: '',
     nombre_custodio: '',
     fecha_creacion: '',
-    dependencias: [],
+    dependencias: '',
     cantidad_bienes: '',
     observacion: '',
     estado: 'pendiente',
@@ -36,7 +36,17 @@ const CrearReportes = () => {
 
   const fetchDependencias = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/listar`);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Token no encontrado. Por favor, inicie sesión nuevamente.');
+        return;
+      }
+
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/listar`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setDependencias(data);
     } catch (error) {
       console.error('Error fetching dependencies:', error);
@@ -67,67 +77,67 @@ const CrearReportes = () => {
     e.preventDefault();
 
     if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.dependencias.length || !formData.cantidad_bienes) {
-        setMensaje({
-            error: true,
-            msg: 'Por favor complete todos los campos obligatorios'
-        });
-        return;
+      setMensaje({
+        error: true,
+        msg: 'Por favor complete todos los campos obligatorios'
+      });
+      return;
     }
 
     if (auth.rol === 'operario') {
-        if (isCompleted) {
-            setMensaje({
-                error: true,
-                msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
-            });
-            return;
-        }
+      if (isCompleted) {
+        setMensaje({
+          error: true,
+          msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
+        });
+        return;
+      }
     }
 
     try {
-        const formDataToSend = new FormData();
+      const formDataToSend = new FormData();
 
-        Object.keys(formData).forEach(key => {
-            formDataToSend.append(key, formData[key]);
-        });
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key]);
+      });
 
-        if (archivo) {
-            formDataToSend.append('archivo', archivo);
-        }
+      if (archivo) {
+        formDataToSend.append('archivo', archivo);
+      }
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setMensaje({
-                error: true,
-                msg: 'Token no encontrado. Por favor, inicie sesión nuevamente.'
-            });
-            return;
-        }
-
-        const url = auth.rol === 'administrador'
-            ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
-            : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
-
-        const config = {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`
-            }
-        };
-
-        const { data } = await axios.post(url, formDataToSend, config);
-
+      const token = localStorage.getItem('token');
+      if (!token) {
         setMensaje({
-            error: false,
-            msg: data.msg || 'Reporte creado con éxito'
+          error: true,
+          msg: 'Token no encontrado. Por favor, inicie sesión nuevamente.'
         });
+        return;
+      }
+
+      const url = auth.rol === 'administrador'
+        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte`
+        : `${import.meta.env.VITE_BACKEND_URL}/reporte/registrar-reporte-operario`;
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      };
+
+      const { data } = await axios.post(url, formDataToSend, config);
+
+      setMensaje({
+        error: false,
+        msg: data.msg || 'Reporte creado con éxito'
+      });
 
     } catch (error) {
-        console.error('Error al crear el reporte:', error);
-        setMensaje({
-            error: true,
-            msg: error.response?.data?.msg || 'Error al crear el reporte'
-        });
+      console.error('Error al crear el reporte:', error);
+      setMensaje({
+        error: true,
+        msg: error.response?.data?.msg || 'Error al crear el reporte'
+      });
     }
   };
 
@@ -221,12 +231,11 @@ const CrearReportes = () => {
           <select
             name="dependencias"
             id="dependencias"
-            multiple
             value={formData.dependencias}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
           >
-            <option value="">Seleccionar Dependencias</option>
+            <option value="">Seleccionar Dependencia</option>
             {dependencias.map((dep) => (
               <option key={dep._id} value={dep._id}>
                 {dep.nombre}
@@ -263,7 +272,7 @@ const CrearReportes = () => {
             Firmado
           </label>
         </div>
-  
+
         {(isCompleted) && (
           <div>
             <label htmlFor="archivo" className="block text-sm font-medium text-gray-700">

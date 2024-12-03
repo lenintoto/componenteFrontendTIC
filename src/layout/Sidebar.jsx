@@ -7,6 +7,7 @@ const Sidebar = () => {
   const { auth } = useContext(AuthContext);
 
   const nombreUsuario = auth.username || auth.usernameO || 'Usuario';
+  const isAdmin = auth.rol === 'administrador';
 
   return (
     <div className="bg-gray-900 text-white w-64 h-screen flex flex-col">
@@ -33,18 +34,14 @@ const Sidebar = () => {
             Visualizar Reportes
           </Link>
         </li>
-        {/*<li className={`px-4 py-2 ${location.pathname === '/crear-usuario' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
-          <Link to="/crear-usuarios" className="flex items-center">
-          <i className="fas fa-user-plus mr-2"></i>
-            Crear Usuarios
-          </Link>
-        </li>*/}
-        <li className={`px-4 py-2 ${location.pathname === '/visualizar-usuarios' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
-          <Link to="/visualizar-usuarios" className="flex items-center">
-          <i className="fas fa-users mr-2"></i>
-            Gestión de Usuarios
-          </Link>
-        </li>
+        {isAdmin && (
+          <li className={`px-4 py-2 ${location.pathname === '/visualizar-usuarios' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
+            <Link to="/visualizar-usuarios" className="flex items-center">
+              <i className="fas fa-users mr-2"></i>
+              Gestión de Usuarios
+            </Link>
+          </li>
+        )}
       </ul>
 
       <div className="w-full text-center py-4 bg-gray-800">
