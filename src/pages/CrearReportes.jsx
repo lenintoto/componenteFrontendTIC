@@ -9,7 +9,7 @@ const CrearReportes = () => {
   const [formData, setFormData] = useState({
     numero_acta: '',
     nombre_custodio: '',
-    fecha_creacion: '',
+    fecha_ingreso: '',
     dependencias: '',
     cantidad_bienes: '',
     observacion: '',
@@ -76,7 +76,7 @@ const CrearReportes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_creacion || !formData.dependencias.length || !formData.cantidad_bienes) {
+    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_ingreso || !formData.dependencias.length || !formData.cantidad_bienes) {
       setMensaje({
         error: true,
         msg: 'Por favor complete todos los campos obligatorios'
@@ -198,14 +198,14 @@ const CrearReportes = () => {
         </div>
 
         <div>
-          <label htmlFor="fecha_creacion" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="fecha_ingreso" className="block text-sm font-medium text-gray-700">
             Fecha de Asignación <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
-            name="fecha_creacion"
-            id="fecha_creacion"
-            value={formData.fecha_creacion}
+            name="fecha_ingreso"
+            id="fecha_ingreso"
+            value={formData.fecha_ingreso}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
           />

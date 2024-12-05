@@ -51,13 +51,15 @@ const DependenciaModal = ({ isOpen, onClose, dependencias, refreshDependencias }
 
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-5 rounded-lg shadow-lg">
+            <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full">
                 <h2 className="text-xl font-bold mb-4">Manage Dependencias</h2>
-                <ul>
-                    {dependencias.map((dep, index) => (
-                        <li key={index}>{dep.nombre}</li>
-                    ))}
-                </ul>
+                <div className="overflow-y-auto max-h-60 mb-4">
+                    <ul>
+                        {dependencias.map((dep, index) => (
+                            <li key={index}>{dep.nombre}</li>
+                        ))}
+                    </ul>
+                </div>
                 {auth.rol === 'administrador' && (
                     <form onSubmit={handleAddDependencia} className="mt-4">
                         <input

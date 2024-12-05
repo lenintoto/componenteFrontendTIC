@@ -5,6 +5,8 @@ import UploadModal from '../components/modals/UploadModal';
 import { useNavigate } from 'react-router-dom';
 import Mensaje from '../components/Alerts/Alertas';
 import AuthContext from '../context/AuthProvider';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const VisualizarReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -123,8 +125,13 @@ const VisualizarReportes = () => {
         }
       );
 
-      setReportes(data);
-      if (data.length === 0) {
+      const reportesConDependencia = data.map(reporte => ({
+        ...reporte,
+        Dependencia: reporte.Dependencia || { nombre: 'No asignada' }
+      }));
+
+      setReportes(reportesConDependencia);
+      if (reportesConDependencia.length === 0) {
         mostrarAlerta('No se encontraron reportes con los filtros aplicados');
       }
     } catch (error) {
@@ -180,6 +187,42 @@ const VisualizarReportes = () => {
     }));
   };
 
+  const generatePDF = () => {
+    const input = document.getElementById('reportes-table');
+    
+    const columnsToHide = input.querySelectorAll('th:nth-last-child(-n+2), td:nth-last-child(-n+2)');
+    columnsToHide.forEach(col => col.style.display = 'none');
+
+    html2canvas(input)
+      .then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save("reportes.pdf");
+      })
+      .catch((error) => {
+        console.error('Error generating PDF:', error);
+      })
+      .finally(() => {
+        columnsToHide.forEach(col => col.style.display = '');
+      });
+  };
+
   return (
     <div className="flex flex-col h-full p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Reportes</h1>
@@ -188,6 +231,13 @@ const VisualizarReportes = () => {
           {mensaje.msg}
         </Mensaje>
       )}
+
+      <button
+        onClick={generatePDF}
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
+      >
+        Descargar PDF
+      </button>
 
       {reportes.length === 0 ? (
         <div className="bg-gray-200 p-4">
@@ -249,7 +299,7 @@ const VisualizarReportes = () => {
             </div>
           </div>
 
-          <table className="w-full mt-5 table-auto shadow-lg bg-white">
+          <table id="reportes-table" className="w-full mt-5 table-auto shadow-lg bg-white">
             <thead className="bg-gray-800 text-slate-400">
               <tr>
                 <th className="p-2">N°</th>
@@ -260,6 +310,7 @@ const VisualizarReportes = () => {
                 <th className="p-2">Cantidad de Bienes</th>
                 <th className="p-2">Estado</th>
                 <th className="p-2">Observaciones</th>
+                {userRole === 'administrador' && <th className="p-2">Operario</th>}
                 <th className="p-2">Archivo</th>
                 {userRole === 'administrador' && <th className="p-2">Acciones</th>}
               </tr>
@@ -270,11 +321,12 @@ const VisualizarReportes = () => {
                   <td>{index + 1}</td>
                   <td>{reporte.numero_acta}</td>
                   <td>{reporte.nombre_custodio}</td>
-                  <td>{new Date(reporte.fecha_creacion).toLocaleDateString()}</td>
-                  <td>{reporte.Dependencia?.nombre || 'No asignada'}</td> {/* Mostrar el nombre de la dependencia */}
+                  <td>{new Date(reporte.fecha_ingreso).toLocaleDateString()}</td>
+                  <td>{reporte.Dependencia?.nombre || 'No asignada'}</td>
                   <td>{reporte.cantidad_bienes}</td>
                   <td>{reporte.estado}</td>
                   <td>{reporte.observacion}</td>
+                  {userRole === 'administrador' && <td>{reporte.operario?.username || 'No asignado'}</td>}
                   <td>
                     {reporte.archivo ? (
                       <a href={`${import.meta.env.VITE_BACKEND_URL}/${reporte.archivo}`} className="text-green-600" target="_blank" rel="noopener noreferrer">Cargado</a>
