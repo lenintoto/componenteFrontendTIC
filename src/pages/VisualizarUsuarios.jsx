@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MdDeleteForever, MdNoteAdd, MdInfo, MdPersonAdd } from "react-icons/md";
+import { MdDeleteForever, MdNoteAdd, MdPersonAdd } from "react-icons/md";
 import ModalCrearUsuario from '../components/modals/ModalCrearUsuario';
 import ModalEditarUsuario from '../components/modals/ModalEditarUsuario';
-import ModalInfoUsuario from '../components/modals/ModalInfoUsuario';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthProvider';
@@ -11,7 +10,6 @@ const VisualizarUsuarios = () => {
   const { auth } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
@@ -72,11 +70,6 @@ const VisualizarUsuarios = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleInfo = (usuario) => {
-    setSelectedUser(usuario);
-    setIsInfoModalOpen(true);
-  };
-
   return (
     <div className="flex flex-col h-full p-6">
       <div className="flex justify-between items-center mb-4">
@@ -106,15 +99,6 @@ const VisualizarUsuarios = () => {
         onUserUpdated={obtenerUsuarios}
       />
 
-      <ModalInfoUsuario
-        isOpen={isInfoModalOpen}
-        onClose={() => {
-          setIsInfoModalOpen(false);
-          setSelectedUser(null);
-        }}
-        usuario={selectedUser}
-      />
-
       <div>
         {usuarios.length === 0 ? (
           <div className="bg-gray-200 p-4">
@@ -130,6 +114,7 @@ const VisualizarUsuarios = () => {
                 <th className="p-2">Apellido</th>
                 <th className="p-2">Extensión</th>
                 <th className="p-2">Email</th>
+                <th className="p-2">Estado</th>
                 <th className="p-2">Acciones</th>
               </tr>
             </thead>
@@ -142,14 +127,11 @@ const VisualizarUsuarios = () => {
                   <td>{usuario.apellido}</td>
                   <td>{usuario.telefono}</td>
                   <td>{usuario.email}</td>
+                  <td>{usuario.estado ? 'Habilitado' : 'Deshabilitado'}</td>
                   <td className="py-2 text-center">
                     <MdNoteAdd 
                       className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2"
                       onClick={() => handleEdit(usuario)}
-                    />
-                    <MdInfo 
-                      className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2"
-                      onClick={() => handleInfo(usuario)}
                     />
                     <MdDeleteForever 
                       className="h-7 w-7 text-red-900 cursor-pointer inline-block"
