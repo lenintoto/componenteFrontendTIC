@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MdDeleteForever, MdUploadFile } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import axios from 'axios';
 import UploadModal from '../components/modals/UploadModal';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import Mensaje from '../components/Alerts/Alertas';
 import AuthContext from '../context/AuthProvider';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import EditModal from '../components/modals/EditModal';
 
 const VisualizarReportes = () => {
   const [reportes, setReportes] = useState([]);
@@ -23,6 +24,7 @@ const VisualizarReportes = () => {
   const [mensaje, setMensaje] = useState({ msg: '', tipo: false });
   const [mostrarMensaje, setMostrarMensaje] = useState(false);
   const { auth } = useContext(AuthContext);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const verificarAutenticacion = () => {
@@ -93,7 +95,9 @@ const VisualizarReportes = () => {
       }
 
       let params = {};
-      let endpoint = '/reporte/filtar-reporte';
+      const endpoint = auth.rol === 'administrador'
+        ? `/reporte/filtrar-reporte-administrador`
+        : `/reporte/filtrar-reporte-operario`;
 
       if (filtros.numero_acta.trim()) {
         params.numero_acta = filtros.numero_acta;
@@ -149,36 +153,6 @@ const VisualizarReportes = () => {
     obtenerReportes();
   };
 
-  const eliminarReporte = async (id) => {
-    if (userRole !== 'administrador') {
-      mostrarAlerta('No tienes permisos para eliminar reportes');
-      return;
-    }
-
-    if (!confirm('¿Está seguro de eliminar este reporte? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/reporte/eliminar-reporte/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      mostrarAlerta('Reporte eliminado correctamente', true);
-      obtenerReportes();
-    } catch (error) {
-      console.error('Error al eliminar reporte:', error);
-      mostrarAlerta(error.response?.data?.msg || 'Error al eliminar el reporte');
-    }
-  };
-
   const handleFiltroChange = (e) => {
     const { name, value } = e.target;
     setFiltros(prev => ({
@@ -190,7 +164,10 @@ const VisualizarReportes = () => {
   const generatePDF = () => {
     const input = document.getElementById('reportes-table');
     
-    const columnsToHide = input.querySelectorAll('th:nth-last-child(-n+2), td:nth-last-child(-n+2)');
+    const columnsToHide = userRole === 'administrador' 
+        ? input.querySelectorAll('th:nth-last-child(-n+2), td:nth-last-child(-n+2)')
+        : input.querySelectorAll('th:nth-last-child(-n+1), td:nth-last-child(-n+1)');
+
     columnsToHide.forEach(col => col.style.display = 'none');
 
     html2canvas(input)
@@ -221,6 +198,11 @@ const VisualizarReportes = () => {
       .finally(() => {
         columnsToHide.forEach(col => col.style.display = '');
       });
+  };
+
+  const openEditModal = (reporte) => {
+    setSelectedReporte(reporte);
+    setShowEditModal(true);
   };
 
   return (
@@ -345,10 +327,10 @@ const VisualizarReportes = () => {
                   {userRole === 'administrador' && (
                     <td className="py-2 text-center">
                       <button
-                        onClick={() => eliminarReporte(reporte._id)}
-                        className="text-red-600 hover:text-red-800"
+                        onClick={() => openEditModal(reporte)}
+                        className="text-blue-600 hover:text-blue-800"
                       >
-                        <MdDeleteForever className="h-6 w-6 inline" />
+                        <MdEdit className="h-6 w-6 inline" />
                       </button>
                     </td>
                   )}
@@ -369,6 +351,14 @@ const VisualizarReportes = () => {
         onUploadSuccess={() => {
           obtenerReportes();
         }}
+      />
+
+      <EditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        reporte={selectedReporte}
+        onEditSuccess={obtenerReportes}
+        showAlert={mostrarAlerta}
       />
     </div>
   );

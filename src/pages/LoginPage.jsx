@@ -1,26 +1,27 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthProvider';
 import Mensaje from '../components/Alerts/Alertas';
 import axios from 'axios';
 
 const LoginPage = () => {
-  const { setAuth } = useContext(AuthContext)
-  const navigate = useNavigate()
+  const { setAuth, auth } = useContext(AuthContext);
+  const navigate = useNavigate();
   
   const [form, setForm] = useState({
     username: "",
     password: ""
-  })
+  });
 
-  const [mensaje, setMensaje] = useState({})
+  const [mensaje, setMensaje] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +33,8 @@ const LoginPage = () => {
       });
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const esAdmin = form.username.startsWith('admin');
@@ -48,18 +51,14 @@ const LoginPage = () => {
       const userData = {
         id: data._id,
         nombre: data.nombre,
-        rol: esAdmin ? 'administrador' : 'operario',
         username: data.username || data.usernameO,
         email: data.email
       };
 
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('token', data.token);
-      localStorage.setItem('rol', userData.rol);
-
-      setAuth(userData);
-
-      navigate('/inicio');
+      localStorage.setItem('rol', esAdmin ? 'administrador' : 'operario');
+      setAuth({ ...userData, token: data.token, rol: esAdmin ? 'administrador' : 'operario' });
 
     } catch (error) {
       console.error('Error de login:', error);
@@ -67,8 +66,25 @@ const LoginPage = () => {
         respuesta: error.response?.data?.msg || "Error al iniciar sesión",
         tipo: false
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userData');
+    const storedToken = localStorage.getItem('token');
+    const storedRol = localStorage.getItem('rol');
+    if (storedUser && storedToken && storedRol) {
+      setAuth({ ...JSON.parse(storedUser), token: storedToken, rol: storedRol });
+    }
+  }, [setAuth]);
+
+  useEffect(() => {
+    if (auth && auth.token) {
+      navigate(auth.rol === 'administrador' ? '/inicio' : '/inicio');
+    }
+  }, [auth, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-500">
@@ -113,8 +129,11 @@ const LoginPage = () => {
             </div>
           </div>
           <div className="mb-4">
-            <button className="w-full bg-blue-500 text-white p-2 rounded text-center block hover:bg-blue-600 transition">
-              Login
+            <button
+              className="w-full bg-blue-500 text-white p-2 rounded text-center block hover:bg-blue-600 transition"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Loading..." : "Login"}
             </button>
           </div>
         </form>

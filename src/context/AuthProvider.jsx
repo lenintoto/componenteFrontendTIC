@@ -5,19 +5,13 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
-    const rol = localStorage.getItem('rol');
-    const token = localStorage.getItem('token');
     const userData = localStorage.getItem('userData');
-    if (token && userData) {
-      return JSON.parse(userData);
-    }
-    return {};
+    return userData ? JSON.parse(userData) : {};
   });
 
   useEffect(() => {
     const validarSesion = async () => {
-      const rol = localStorage.getItem('rol');
-      const token = localStorage.getItem('token');
+      const token = auth.token;
       const userData = localStorage.getItem('userData');
 
       if (!token || !userData) {
@@ -39,29 +33,28 @@ const AuthProvider = ({ children }) => {
 
         const { data } = await axios.get(url, config);
 
-        const updatedUserData = {
-          ...parsedUserData,
-          ...data,
-          token,
-          rol: parsedUserData.rol
-        };
+        if (JSON.stringify(auth) !== JSON.stringify({ ...parsedUserData, ...data, token })) {
+          const updatedUserData = {
+            ...parsedUserData,
+            ...data,
+            token,
+            rol: parsedUserData.rol
+          };
 
-        localStorage.setItem('userData', JSON.stringify(updatedUserData));
-        setAuth(updatedUserData);
+          localStorage.setItem('userData', JSON.stringify(updatedUserData));
+          setAuth(updatedUserData);
+        }
 
       } catch (error) {
         console.error(error);
         if (error.response?.status === 401) {
-          localStorage.removeItem('rol');
-          localStorage.removeItem('token');
-          localStorage.removeItem('userData');
-          setAuth({});
+          cerrarSesion();
         }
       }
     };
 
     validarSesion();
-  }, []);
+  }, [auth.token]);
 
   const cerrarSesion = () => {
     localStorage.removeItem('rol');

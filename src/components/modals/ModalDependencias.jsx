@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { MdDelete } from 'react-icons/md';
 import AuthContext from '../../context/AuthProvider';
 
 const DependenciaModal = ({ isOpen, onClose, dependencias, refreshDependencias }) => {
@@ -49,14 +50,51 @@ const DependenciaModal = ({ isOpen, onClose, dependencias, refreshDependencias }
         }
     };
 
+    const handleDeleteDependencia = async (id) => {
+        if (!auth.rol === 'administrador') {
+            setError('No tiene permiso para eliminar dependencias');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('Token no encontrado. Por favor, inicie sesión nuevamente.');
+                return;
+            }
+
+            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/dependencia/eliminar/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setError('');
+            refreshDependencias();
+            alert(response.data.msg);
+        } catch (err) {
+            setError(err.response?.data?.msg || 'Error al eliminar la dependencia');
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full">
                 <h2 className="text-xl font-bold mb-4">Manage Dependencias</h2>
                 <div className="overflow-y-auto max-h-60 mb-4">
                     <ul>
-                        {dependencias.map((dep, index) => (
-                            <li key={index}>{dep.nombre}</li>
+                        {dependencias.map((dep) => (
+                            <li key={dep._id} className="flex justify-between items-center">
+                                {dep.nombre}
+                                {auth.rol === 'administrador' && (
+                                    <button
+                                        onClick={() => handleDeleteDependencia(dep._id)}
+                                        className="text-red-500 hover:text-red-700 ml-2"
+                                    >
+                                        <MdDelete className="h-6 w-6" />
+                                    </button>
+                                )}
+                            </li>
                         ))}
                     </ul>
                 </div>

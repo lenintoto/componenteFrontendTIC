@@ -11,7 +11,7 @@ import NewPasswordPage from './pages/NewPasswordPage';
 import { AuthProvider } from './context/AuthProvider';
 import { NotFound } from './pages/NotFound';
 import { Forbidden } from './pages/Forbidden';
-import { PrivateRoute } from './routes/PrivateRoutes';
+import PrivateRoute from './routes/PrivateRoutes';
 
 function App() {
   return (

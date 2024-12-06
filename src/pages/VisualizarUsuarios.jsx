@@ -46,13 +46,13 @@ const VisualizarUsuarios = () => {
     }
   };
 
-  const eliminarUsuario = async (id) => {
-    if (!confirm('¿Está seguro de eliminar este usuario?')) return;
+  const cambiarEstadoUsuario = async (id) => {
+    if (!confirm('¿Está seguro de cambiar el estado de este usuario?')) return;
 
     try {
       const token = auth.token;
-      await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/admin/estado-operario/${id}`,
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/estado/${id}`,
         {},
         {
           headers: {
@@ -63,7 +63,7 @@ const VisualizarUsuarios = () => {
       );
       obtenerUsuarios();
     } catch (error) {
-      console.error('Error al eliminar usuario:', error);
+      console.error('Error al cambiar el estado del usuario:', error);
     }
   };
 
@@ -153,7 +153,7 @@ const VisualizarUsuarios = () => {
                     />
                     <MdDeleteForever 
                       className="h-7 w-7 text-red-900 cursor-pointer inline-block"
-                      onClick={() => eliminarUsuario(usuario._id)}
+                      onClick={() => cambiarEstadoUsuario(usuario._id)}
                     />
                   </td>
                 </tr>

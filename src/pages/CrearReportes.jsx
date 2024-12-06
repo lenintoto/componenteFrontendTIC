@@ -42,7 +42,7 @@ const CrearReportes = () => {
         return;
       }
 
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/listar`, {
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/dependencia/listar`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
