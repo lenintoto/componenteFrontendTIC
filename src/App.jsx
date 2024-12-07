@@ -15,39 +15,41 @@ import PrivateRoute from './routes/PrivateRoutes';
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/inicio" element={
-              <PrivateRoute>
-                <Inicio />
-              </PrivateRoute>
-            } />
-            <Route path="/crear-reportes" element={
-              <PrivateRoute>
-                <CrearReportes />
-              </PrivateRoute>
-            } />
-            <Route path="/visualizar-reportes" element={
-              <PrivateRoute>
-                <VisualizarReportes />
-              </PrivateRoute>
-            } />
-            <Route path="/visualizar-usuarios" element={
-              <PrivateRoute>
-                <VisualizarUsuarios />
-              </PrivateRoute>
-            } />
-          </Route>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/recuperar-contrasena" element={<RecoverPasswordPage />} />
-          <Route path="/nuevo-password/:token" element={<NewPasswordPage />} />
-          <Route path="/forbidden" element={<Forbidden />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <SpeedInsights>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route path="/inicio" element={
+                <PrivateRoute>
+                  <Inicio />
+                </PrivateRoute>
+              } />
+              <Route path="/crear-reportes" element={
+                <PrivateRoute>
+                  <CrearReportes />
+                </PrivateRoute>
+              } />
+              <Route path="/visualizar-reportes" element={
+                <PrivateRoute>
+                  <VisualizarReportes />
+                </PrivateRoute>
+              } />
+              <Route path="/visualizar-usuarios" element={
+                <PrivateRoute>
+                  <VisualizarUsuarios />
+                </PrivateRoute>
+              } />
+            </Route>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/recuperar-contrasena" element={<RecoverPasswordPage />} />
+            <Route path="/nuevo-password/:token" element={<NewPasswordPage />} />
+            <Route path="/forbidden" element={<Forbidden />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </SpeedInsights>
   );
 }
 
