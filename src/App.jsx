@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthProvider';
 import { NotFound } from './pages/NotFound';
 import { Forbidden } from './pages/Forbidden';
 import PrivateRoute from './routes/PrivateRoutes';
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function App() {
   return (
