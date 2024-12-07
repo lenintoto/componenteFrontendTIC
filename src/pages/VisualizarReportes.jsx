@@ -94,7 +94,7 @@ const VisualizarReportes = () => {
         return;
       }
 
-      const params = {};
+      let params = {};
       const endpoint = auth.rol === 'administrador'
         ? `/reporte/filtrar-reporte-administrador`
         : `/reporte/filtrar-reporte-operario`;
@@ -128,6 +128,7 @@ const VisualizarReportes = () => {
           }
         }
       );
+
 
       const reportesConDependencia = data.map(reporte => ({
         ...reporte,
@@ -177,8 +178,8 @@ const VisualizarReportes = () => {
         const imgWidth = 210;
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        const heightLeft = imgHeight;
-        const position = 0;
+        let heightLeft = imgHeight;
+        let position = 0;
 
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
