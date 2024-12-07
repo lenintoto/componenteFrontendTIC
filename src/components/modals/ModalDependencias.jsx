@@ -56,6 +56,11 @@ const DependenciaModal = ({ isOpen, onClose, dependencias, refreshDependencias }
             return;
         }
 
+        const confirmDelete = window.confirm('¿Está seguro de que desea eliminar esta dependencia?');
+        if (!confirmDelete) {
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             if (!token) {

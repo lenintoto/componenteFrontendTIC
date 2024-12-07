@@ -57,7 +57,7 @@ const VisualizarReportes = () => {
       if (!token) return;
 
       const endpoint = auth.rol === 'administrador'
-        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reportes`
+        ? `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reportes/${auth._id}`
         : `${import.meta.env.VITE_BACKEND_URL}/reporte/listar-reporte-operario/${auth._id}`;
 
       const { data } = await axios.get(
@@ -94,7 +94,7 @@ const VisualizarReportes = () => {
         return;
       }
 
-      let params = {};
+      const params = {};
       const endpoint = auth.rol === 'administrador'
         ? `/reporte/filtrar-reporte-administrador`
         : `/reporte/filtrar-reporte-operario`;
@@ -177,8 +177,8 @@ const VisualizarReportes = () => {
         const imgWidth = 210;
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+        const heightLeft = imgHeight;
+        const position = 0;
 
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
@@ -308,7 +308,7 @@ const VisualizarReportes = () => {
                   <td>{reporte.cantidad_bienes}</td>
                   <td>{reporte.estado}</td>
                   <td>{reporte.observacion}</td>
-                  {userRole === 'administrador' && <td>{reporte.operario?.username || 'No asignado'}</td>}
+                  {userRole === 'administrador' && <td>{reporte.operario?.username || reporte.administrador?.username || 'No asignado'}</td>}
                   <td>
                     {reporte.archivo ? (
                       <a href={`${import.meta.env.VITE_BACKEND_URL}/${reporte.archivo}`} className="text-green-600" target="_blank" rel="noopener noreferrer">Cargado</a>

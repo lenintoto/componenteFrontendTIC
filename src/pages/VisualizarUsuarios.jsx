@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MdDeleteForever, MdNoteAdd, MdPersonAdd } from "react-icons/md";
+import { MdNoteAdd, MdPersonAdd, MdToggleOn, MdToggleOff } from "react-icons/md";
 import ModalCrearUsuario from '../components/modals/ModalCrearUsuario';
 import ModalEditarUsuario from '../components/modals/ModalEditarUsuario';
 import axios from 'axios';
@@ -44,22 +44,23 @@ const VisualizarUsuarios = () => {
     }
   };
 
-  const cambiarEstadoUsuario = async (id) => {
-    if (!confirm('¿Está seguro de cambiar el estado de este usuario?')) return;
+  const cambiarEstadoUsuario = async (id, estadoActual) => {
+    const confirmToggle = window.confirm('¿Está seguro de que desea cambiar el estado de este usuario?');
+    if (!confirmToggle) return;
 
     try {
-      const token = auth.token;
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/administrador/estado/${id}`,
-        {},
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      obtenerUsuarios();
+        const token = auth.token;
+        await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/administrador/estado/${id}`,
+            { estado: !estadoActual },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        obtenerUsuarios();
     } catch (error) {
       console.error('Error al cambiar el estado del usuario:', error);
     }
@@ -128,15 +129,23 @@ const VisualizarUsuarios = () => {
                   <td>{usuario.telefono}</td>
                   <td>{usuario.email}</td>
                   <td>{usuario.estado ? 'Habilitado' : 'Deshabilitado'}</td>
-                  <td className="py-2 text-center">
-                    <MdNoteAdd 
-                      className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2"
-                      onClick={() => handleEdit(usuario)}
-                    />
-                    <MdDeleteForever 
-                      className="h-7 w-7 text-red-900 cursor-pointer inline-block"
-                      onClick={() => cambiarEstadoUsuario(usuario._id)}
-                    />
+                  <td className="py-2 text-center flex justify-center items-center space-x-2">
+                    <button
+                        onClick={() => handleEdit(usuario)}
+                        className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300"
+                    >
+                        <MdNoteAdd className="w-6 h-6 text-gray-800" />
+                    </button>
+                    <button
+                        onClick={() => cambiarEstadoUsuario(usuario._id, usuario.estado)}
+                        className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300"
+                    >
+                        {usuario.estado ? (
+                            <MdToggleOn className="w-6 h-6 text-green-500" />
+                        ) : (
+                            <MdToggleOff className="w-6 h-6 text-red-500" />
+                        )}
+                    </button>
                   </td>
                 </tr>
               ))}
