@@ -312,7 +312,14 @@ const VisualizarReportes = () => {
                   {userRole === 'administrador' && <td>{reporte.operario?.username || reporte.administrador?.username || 'No asignado'}</td>}
                   <td>
                     {reporte.archivo ? (
-                      <a href={`${import.meta.env.VITE_BACKEND_URL}/${reporte.archivo}`} className="text-green-600" target="_blank" rel="noopener noreferrer">Cargado</a>
+                      <a
+                        href={`${import.meta.env.VITE_BACKEND_URL}/reporte/pdf/${reporte._id}`}
+                        className="text-green-600"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Cargado
+                      </a>
                     ) : (
                       <button
                         onClick={() => {
