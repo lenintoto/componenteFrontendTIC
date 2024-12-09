@@ -15,6 +15,7 @@ const CrearReportes = () => {
     observacion: '',
     estado: 'pendiente',
     operarioId: auth._id || '',
+    adminId: auth.rol === 'administrador' ? auth._id : ''
   });
   const [archivo, setArchivo] = useState(null);
   const [mensaje, setMensaje] = useState({ error: false, msg: '' });
@@ -26,6 +27,7 @@ const CrearReportes = () => {
       setFormData(prevData => ({
         ...prevData,
         operarioId: auth._id || '',
+        adminId: auth.rol === 'administrador' ? auth._id : ''
       }));
     }
   }, [auth]);
