@@ -95,7 +95,7 @@ const Inicio = () => {
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Extensión:</td>
-                <td className="px-4 py-2">Ext-{userData.telefono || 'No disponible'}</td>
+                <td className="px-4 py-2">Ext-{userData.extension || 'No disponible'}</td>
               </tr>
               <tr className="border-b">
                 <td className="px-4 py-2 font-semibold text-gray-700">Email:</td>

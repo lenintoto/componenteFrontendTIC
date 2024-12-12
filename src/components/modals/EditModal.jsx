@@ -14,6 +14,7 @@ const EditModal = ({ isOpen, onClose, reporte, onEditSuccess }) => {
     estado: 'pendiente',
   });
   const [dependencias, setDependencias] = useState([]);
+  const [editError, setEditError] = useState(null);
 
   useEffect(() => {
     if (reporte) {
@@ -88,9 +89,19 @@ const EditModal = ({ isOpen, onClose, reporte, onEditSuccess }) => {
       onEditSuccess();
       onClose();
     } catch (error) {
-      console.error('Error al actualizar el reporte:', error);
+      setEditError(error.response?.data?.msg || 'Error al actualizar el reporte');
     }
   };
+
+  useEffect(() => {
+    if (editError) {
+      const timer = setTimeout(() => {
+        setEditError(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [editError]);
 
   if (!isOpen) return null;
 
@@ -98,6 +109,11 @@ const EditModal = ({ isOpen, onClose, reporte, onEditSuccess }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4">Editar Reporte</h2>
+        {editError && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {editError}
+          </div>
+        )}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="numero_acta" className="block text-sm font-medium text-gray-700">

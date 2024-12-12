@@ -126,7 +126,7 @@ const VisualizarUsuarios = () => {
                   <td>{usuario.username}</td>
                   <td>{usuario.nombre}</td>
                   <td>{usuario.apellido}</td>
-                  <td>{usuario.telefono}</td>
+                  <td>{usuario.extension}</td>
                   <td>{usuario.email}</td>
                   <td>{usuario.estado ? 'Habilitado' : 'Deshabilitado'}</td>
                   <td className="py-2 text-center flex justify-center items-center space-x-2">
