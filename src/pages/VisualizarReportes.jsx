@@ -225,7 +225,7 @@ const VisualizarReportes = () => {
             cellPadding: 5,
             fontSize: 10,
             overflow: 'linebreak',
-            columnWidth: 'auto'
+            cellWidth: 'auto'
         },
         headStyles: {
             fillColor: [34, 34, 34], // Cambia el color del encabezado aquí
