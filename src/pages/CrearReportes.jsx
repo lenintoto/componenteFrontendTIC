@@ -24,7 +24,7 @@ const CrearReportes = () => {
     if (auth) {
       setFormData(prevData => ({
         ...prevData,
-        ...(auth.rol === 'operario' ? { operarioId: auth._id } : { adminId: auth._id })
+        ...(auth.rol === 'administrador' ? { adminId: auth._id }:{ operarioId: auth._id })
       }));
     }
   }, [auth]);

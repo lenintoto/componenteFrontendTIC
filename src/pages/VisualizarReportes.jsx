@@ -15,7 +15,8 @@ const VisualizarReportes = () => {
   const [filtros, setFiltros] = useState({
     fecha_inicio: '',
     fecha_fin: '',
-    numero_acta: ''
+    numero_acta: '',
+    estado: ''
   });
   const [error, setError] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -152,6 +153,7 @@ const VisualizarReportes = () => {
       fecha_fin: '',
       numero_acta: ''
     });
+    setEstadoFiltro('');
     obtenerReportes();
   };
 
@@ -302,6 +304,20 @@ const VisualizarReportes = () => {
                   placeholder="Número de Acta"
                   className="p-2 border rounded-md text-gray-700"
                 />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-1">Filtrar por Estado:</label>
+                <select
+                  name="estado"
+                  //value={estadoFiltro}
+                  //onChange={handleEstadoChange}
+                  className="p-2 border rounded-md text-gray-700"
+                >
+                  <option value="">Todos</option>
+                  <option value="firmado">Firmado</option>
+                  <option value="pendiente">Pendiente</option>
+                </select>
               </div>
             </div>
 
