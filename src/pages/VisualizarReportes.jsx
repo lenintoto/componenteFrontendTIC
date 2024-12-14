@@ -115,10 +115,13 @@ const VisualizarReportes = () => {
       } else if ((filtros.fecha_inicio && !filtros.fecha_fin) || (!filtros.fecha_inicio && filtros.fecha_fin)) {
         mostrarAlerta('Por favor, seleccione ambas fechas');
         return;
+      } else if (filtros.estado.trim()) {
+        params.estado = filtros.estado;
       } else {
         obtenerReportes();
         return;
       }
+
 
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
@@ -130,7 +133,6 @@ const VisualizarReportes = () => {
           }
         }
       );
-
 
       const reportesConDependencia = data.map(reporte => ({
         ...reporte,
@@ -151,9 +153,9 @@ const VisualizarReportes = () => {
     setFiltros({
       fecha_inicio: '',
       fecha_fin: '',
-      numero_acta: ''
+      numero_acta: '',
+      estado: ''
     });
-    setEstadoFiltro('');
     obtenerReportes();
   };
 
@@ -222,19 +224,21 @@ const VisualizarReportes = () => {
         head: [headers],
         body: tableData,
         startY: 40,
-        theme: 'grid', // Puedes cambiar el tema a 'striped', 'plain', etc.
+        theme: 'grid',
         styles: { 
-            cellPadding: 5,
+            cellPadding: 2,
             fontSize: 10,
             overflow: 'linebreak',
-            cellWidth: 'auto'
+            cellWidth: 'auto',
+            halign: 'center'
         },
         headStyles: {
-            fillColor: [34, 34, 34], // Cambia el color del encabezado aquí
-            textColor: [255, 255, 255] // Color del texto de los encabezados
+            fillColor: [35, 58, 77],
+            textColor: [255, 255, 255],
+            halign: 'center'
         },
         alternateRowStyles: {
-            fillColor: [240, 240, 240] // Color de las filas alternas
+            fillColor: [240, 240, 240]
         }
     });
 
@@ -310,8 +314,8 @@ const VisualizarReportes = () => {
                 <label className="block text-gray-700 mb-1">Filtrar por Estado:</label>
                 <select
                   name="estado"
-                  //value={estadoFiltro}
-                  //onChange={handleEstadoChange}
+                  value={filtros.estado}
+                  onChange={handleFiltroChange}
                   className="p-2 border rounded-md text-gray-700"
                 >
                   <option value="">Todos</option>
