@@ -26,7 +26,7 @@ const CrearReportes = () => {
     if (auth) {
       setFormData(prevData => ({
         ...prevData,
-        operarioId: auth._id || '',
+        operarioId: auth.rol === 'operario' ? auth._id : '',
         adminId: auth.rol === 'administrador' ? auth._id : ''
       }));
     }
@@ -78,7 +78,9 @@ const CrearReportes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.numero_acta || !formData.nombre_custodio || !formData.fecha_ingreso || !formData.dependencias.length || !formData.cantidad_bienes) {
+    const { numero_acta, nombre_custodio, fecha_ingreso, dependencias, cantidad_bienes } = formData;
+
+    if (!numero_acta || !nombre_custodio || !fecha_ingreso || !dependencias || !cantidad_bienes) {
       setMensaje({
         error: true,
         msg: 'Por favor complete todos los campos obligatorios'
@@ -86,19 +88,16 @@ const CrearReportes = () => {
       return;
     }
 
-    if (auth.rol === 'operario') {
-      if (isCompleted) {
-        setMensaje({
-          error: true,
-          msg: 'Los operarios solo pueden subir archivos cuando el acta está firmada'
-        });
-        return;
-      }
+    if (auth.rol === 'operario' && isCompleted && !archivo) {
+      setMensaje({
+        error: true,
+        msg: 'Los operarios deben subir un archivo cuando el acta está firmada'
+      });
+      return;
     }
 
     try {
       const formDataToSend = new FormData();
-
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key]);
       });
@@ -107,6 +106,9 @@ const CrearReportes = () => {
         formDataToSend.append('archivo', archivo);
       }
 
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(key, value);
+    }
       const token = localStorage.getItem('token');
       if (!token) {
         setMensaje({
@@ -128,7 +130,6 @@ const CrearReportes = () => {
       };
 
       const { data } = await axios.post(url, formDataToSend, config);
-
       setMensaje({
         error: false,
         msg: data.msg || 'Reporte creado con éxito'

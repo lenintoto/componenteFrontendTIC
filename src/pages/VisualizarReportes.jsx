@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Mensaje from '../components/Alerts/Alertas';
 import AuthContext from '../context/AuthProvider';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import EditModal from '../components/modals/EditModal';
 
@@ -163,42 +164,80 @@ const VisualizarReportes = () => {
   };
 
   const generatePDF = () => {
-    const input = document.getElementById('reportes-table');
+    const doc = new jsPDF();
+
+    // Título principal
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text('Gestión de Reportes', 105, 15, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text('Reporte de Actividades', 105, 22, { align: 'center' });
+    doc.line(10, 30, 200, 30); // Línea horizontal
+
+    // Fecha de generación
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
     
-    const columnsToHide = userRole === 'administrador' 
-        ? input.querySelectorAll('th:nth-last-child(-n+2), td:nth-last-child(-n+2)')
-        : input.querySelectorAll('th:nth-last-child(-n+1), td:nth-last-child(-n+1)');
+    // Datos de la tabla
+    const tableData = reportes.map(reporte => {
+        const row = [
+            reporte.numero_acta,
+            reporte.nombre_custodio,
+            new Date(reporte.fecha_ingreso).toLocaleDateString(),
+            reporte.Dependencia?.nombre || 'No asignada',
+            reporte.cantidad_bienes,
+            reporte.estado,
+            reporte.observacion,
+        ];
 
-    columnsToHide.forEach(col => col.style.display = 'none');
-
-    html2canvas(input)
-      .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+        // Agregar el campo de "Operario" solo si el usuario es administrador
+        if (userRole === 'administrador') {
+            row.push(reporte.operario?.username || 'No asignado');
         }
 
-        pdf.save("reportes.pdf");
-      })
-      .catch((error) => {
-        console.error('Error generating PDF:', error);
-      })
-      .finally(() => {
-        columnsToHide.forEach(col => col.style.display = '');
-      });
+        return row;
+    });
+
+    // Encabezados de la tabla
+    const headers = [
+        'N° Acta',
+        'Nombre del Custodio',
+        'Fecha de Asignación',
+        'Dependencia',
+        'Cantidad de Bienes',
+        'Estado',
+        'Observaciones',
+    ];
+
+    // Agregar el encabezado de "Operario" solo si el usuario es administrador
+    if (userRole === 'administrador') {
+        headers.push('Operario');
+    }
+
+    // Crear la tabla
+    doc.autoTable({
+        head: [headers],
+        body: tableData,
+        startY: 40,
+        theme: 'grid', // Puedes cambiar el tema a 'striped', 'plain', etc.
+        styles: { 
+            cellPadding: 5,
+            fontSize: 10,
+            overflow: 'linebreak',
+            columnWidth: 'auto'
+        },
+        headStyles: {
+            fillColor: [34, 34, 34], // Cambia el color del encabezado aquí
+            textColor: [255, 255, 255] // Color del texto de los encabezados
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240] // Color de las filas alternas
+        }
+    });
+
+    // Descargar el PDF
+    doc.save(`reportes.pdf`);
   };
 
   const openEditModal = (reporte) => {
