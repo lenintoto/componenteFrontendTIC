@@ -20,8 +20,8 @@ const Inicio = () => {
         return;
       }
 
-      const endpoint = auth.rol === 'administrador' 
-        ? `${import.meta.env.VITE_BACKEND_URL}/administrador/cambiar-password` 
+      const endpoint = auth.rol === 'administrador'
+        ? `${import.meta.env.VITE_BACKEND_URL}/administrador/cambiar-password`
         : `${import.meta.env.VITE_BACKEND_URL}/operario/cambiar-password`;
 
       const response = await axios.post(endpoint, {
@@ -66,7 +66,7 @@ const Inicio = () => {
               )}
               <div className="bg-gray-100 p-4 rounded-md shadow-md">
                 <h3 className="text-lg font-bold mb-2">Visualizar Reportes</h3>
-                <p>Gestiona y revisa todos los reportes existentes. Utiliza los filtros para buscar reportes por fecha o número de acta y realiza acciones como subir archivos en un plazo de 30 días si en el reporte creado no se subieron, o como administrador editar la información de los reportes</p>
+                <p>Gestiona y revisa todos los reportes existentes. Utiliza los filtros para buscar reportes por fecha, número de acta o estado (pendiente y firmado) y realiza acciones como subir archivos en un plazo de 30 días si en el reporte creado no se subieron (el usuario es responsable de conservar el archivo para su validación, ya que su visualización en la tabla es temporal), o como administrador editar la información de los reportes</p>
               </div>
               {userData.rol === 'administrador' && (
                 <div className="bg-gray-100 p-4 rounded-md shadow-md">
@@ -107,8 +107,8 @@ const Inicio = () => {
               </tr>
               <tr>
                 <td colSpan="2" className="px-4 py-2 text-center">
-                  <button 
-                    onClick={() => setModalOpen(true)} 
+                  <button
+                    onClick={() => setModalOpen(true)}
                     className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
                   >
                     Actualizar Contraseña
@@ -117,10 +117,10 @@ const Inicio = () => {
               </tr>
             </tbody>
           </table>
-          <ModalActualizarContraseña 
-            isOpen={modalOpen} 
-            onClose={() => setModalOpen(false)} 
-            onUpdate={handleUpdatePassword} 
+          <ModalActualizarContraseña
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onUpdate={handleUpdatePassword}
             role={userData.rol}
           />
         </div>
