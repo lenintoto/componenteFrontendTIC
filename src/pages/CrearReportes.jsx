@@ -77,7 +77,9 @@ const CrearReportes = () => {
 
     const { numero_acta, nombre_custodio, fecha_ingreso, dependencias, cantidad_bienes } = formData;
 
-    if (!numero_acta || !nombre_custodio || !fecha_ingreso || !dependencias || !cantidad_bienes) {
+    const fechaUTC = new Date(fecha_ingreso).toISOString();
+
+    if (!numero_acta || !nombre_custodio || !fechaUTC || !dependencias || !cantidad_bienes) {
       setMensaje({
         error: true,
         msg: 'Por favor complete todos los campos obligatorios'

@@ -363,7 +363,7 @@ const VisualizarReportes = () => {
                   <td>{index + 1}</td>
                   <td>{reporte.numero_acta}</td>
                   <td>{reporte.nombre_custodio}</td>
-                  <td>{new Date(reporte.fecha_ingreso).toLocaleDateString()}</td>
+                  <td>{new Date(reporte.fecha_ingreso).toLocaleDateString('es-ES', { timeZone: 'UTC' })}</td>
                   <td>{reporte.Dependencia?.nombre || 'No asignada'}</td>
                   <td>{reporte.cantidad_bienes}</td>
                   <td>{reporte.estado}</td>
