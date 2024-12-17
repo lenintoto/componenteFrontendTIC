@@ -15,6 +15,7 @@
     "axios": "^1.7.2",
     "dotenv": "^16.4.7",
     "html2canvas": "^1.4.1",
+    "jsdom": "^25.0.1",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "jwt-decode": "^4.0.0",
@@ -25,8 +26,6 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.26.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",

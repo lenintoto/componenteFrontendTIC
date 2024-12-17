@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MdEdit } from "react-icons/md";
+import { MdEdit, MdUpload } from "react-icons/md";
 import axios from 'axios';
 import UploadModal from '../components/modals/UploadModal';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,6 @@ import Mensaje from '../components/Alerts/Alertas';
 import AuthContext from '../context/AuthProvider';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import html2canvas from 'html2canvas';
 import EditModal from '../components/modals/EditModal';
 
 const VisualizarReportes = () => {
@@ -115,13 +114,14 @@ const VisualizarReportes = () => {
       } else if ((filtros.fecha_inicio && !filtros.fecha_fin) || (!filtros.fecha_inicio && filtros.fecha_fin)) {
         mostrarAlerta('Por favor, seleccione ambas fechas');
         return;
-      } else if (filtros.estado.trim()) {
-        params.estado = filtros.estado;
       } else {
         obtenerReportes();
         return;
       }
 
+      if (filtros.estado.trim()) {
+        params.estado = filtros.estado;
+      }
 
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
@@ -173,9 +173,10 @@ const VisualizarReportes = () => {
     // Título principal
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text('Gestión de Reportes', 105, 15, { align: 'center' });
+    doc.text('Escuela Politécnica Nacional', 105, 15, { align: 'center' });
     doc.setFontSize(12);
-    doc.text('Reporte de Actividades', 105, 22, { align: 'center' });
+    doc.text('Unidad de Control de Bienes', 105, 22, { align: 'center' });
+    doc.text('Reporte de Actas de Asignación y Traspaso Masivo', 105, 27, { align: 'center' });
     doc.line(10, 30, 200, 30); // Línea horizontal
 
     // Fecha de generación
@@ -253,19 +254,20 @@ const VisualizarReportes = () => {
 
   return (
     <div className="flex flex-col h-full p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">Gestión de Reportes</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">Gestión de Reportes</h1>
+        <button
+          onClick={generatePDF}
+          className="bg-gray-600 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded"
+        >
+          Descargar PDF
+        </button>
+      </div>
       {mostrarMensaje && (
         <Mensaje tipo={mensaje.tipo}>
           {mensaje.msg}
         </Mensaje>
       )}
-
-      <button
-        onClick={generatePDF}
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4"
-      >
-        Descargar PDF
-      </button>
 
       {reportes.length === 0 ? (
         <div className="bg-gray-200 p-4">
@@ -398,6 +400,15 @@ const VisualizarReportes = () => {
                         className="text-blue-600 hover:text-blue-800"
                       >
                         <MdEdit className="h-6 w-6 inline" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedReporte(reporte);
+                          setShowUploadModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <MdUpload className="h-6 w-6 inline" />
                       </button>
                     </td>
                   )}

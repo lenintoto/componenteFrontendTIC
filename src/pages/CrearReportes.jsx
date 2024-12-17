@@ -145,11 +145,11 @@ const CrearReportes = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-5 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-bold mb-6 text-center">Registro de Actas</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">Crear Registros</h1>
 
       <button
         onClick={() => setIsModalOpen(true)}
-        className="mb-4 bg-green-500 text-white py-2 px-4 rounded-lg"
+        className="mb-4 bg-gray-600 hover:bg-gray-400 text-white py-2 px-4 rounded-lg"
       >
         Manage Dependencias
       </button>
@@ -292,9 +292,9 @@ const CrearReportes = () => {
         <div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
           >
-            Crear Reporte
+            Crear Registro
           </button>
         </div>
       </form>

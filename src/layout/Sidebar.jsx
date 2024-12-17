@@ -25,7 +25,7 @@ const Sidebar = () => {
         <li className={`px-4 py-2 ${location.pathname === '/crear-reportes' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
           <Link to="/crear-reportes" className="flex items-center">
           <i className="fas fa-file-alt mr-3"></i>
-            Crear Reportes
+            Crear Registros
           </Link>
         </li>
         <li className={`px-4 py-2 ${location.pathname === '/visualizar-reportes' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
