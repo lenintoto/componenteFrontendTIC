@@ -1,19 +1,20 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ModalEditarUsuario from './ModalEditarUsuario';
 import axios from 'axios';
+import { describe, it, expect } from 'vitest';
 
 jest.mock('axios');
 
 describe('ModalEditarUsuario', () => {
   const onClose = jest.fn();
   const onUserUpdated = jest.fn();
-  const usuario = { _id: '1', username: 'testuser', nombre: 'Test', apellido: 'User', email: 'test@example.com' };
+  const usuario = { _id: '1', username: 'operario', nombre: '', apellido: 'Gómez', email: 'test@example.com' };
 
   beforeEach(() => {
     render(<ModalEditarUsuario isOpen={true} onClose={onClose} usuario={usuario} onUserUpdated={onUserUpdated} />);
   });
 
-  test('should render modal when open', () => {
+  it('should render modal when open', () => {
     expect(screen.getByText(/Editar Usuario/i)).toBeInTheDocument();
   });
 

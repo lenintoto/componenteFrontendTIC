@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import ModalCrearUsuario from './ModalCrearUsuario';
 import axios from 'axios';
+import { describe, it, expect } from 'vitest';
 
 jest.mock('axios');
 
@@ -12,7 +13,7 @@ describe('ModalCrearUsuario', () => {
     render(<ModalCrearUsuario isOpen={true} onClose={onClose} onUserCreated={onUserCreated} />);
   });
 
-  test('should render modal when open', () => {
+  it('should render modal when open', () => {
     expect(screen.getByText(/Registro de Usuario/i)).toBeInTheDocument();
   });
 

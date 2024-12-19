@@ -185,11 +185,12 @@ const VisualizarReportes = () => {
     doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
     
     // Datos de la tabla
-    const tableData = reportes.map(reporte => {
+    const tableData = reportes.map((reporte, index) => {
         const row = [
+            index + 1,
             reporte.numero_acta,
             reporte.nombre_custodio,
-            new Date(reporte.fecha_ingreso).toLocaleDateString(),
+            new Date(reporte.fecha_ingreso).toLocaleDateString('es-ES', { timeZone: 'UTC' }),
             reporte.Dependencia?.nombre || 'No asignada',
             reporte.cantidad_bienes,
             reporte.estado,
@@ -206,6 +207,7 @@ const VisualizarReportes = () => {
 
     // Encabezados de la tabla
     const headers = [
+        'Nº',
         'N° Acta',
         'Nombre del Custodio',
         'Fecha de Asignación',
@@ -228,10 +230,13 @@ const VisualizarReportes = () => {
         theme: 'grid',
         styles: { 
             cellPadding: 2,
-            fontSize: 10,
+            fontSize: 8,
             overflow: 'linebreak',
-            cellWidth: 'auto',
             halign: 'center'
+        },
+        columnStyles: {
+            0: { cellWidth: 15 },
+            1: { cellWidth: 15 },
         },
         headStyles: {
             fillColor: [35, 58, 77],

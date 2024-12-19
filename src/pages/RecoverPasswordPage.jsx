@@ -30,7 +30,7 @@ const RecoverPasswordPage = () => {
         tipo: true
       });
       setTimeout(() => {
-        navigate('/nuevo-password');
+        navigate('/login');
       }, 3000);
     } catch (error) {
       console.log(error);

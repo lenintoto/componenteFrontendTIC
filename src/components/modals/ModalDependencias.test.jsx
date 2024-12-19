@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import DependenciaModal from './ModalDependencias';
 import axios from 'axios';
+import { describe, it, expect } from 'vitest';
 
 jest.mock('axios');
 
@@ -13,7 +14,7 @@ describe('DependenciaModal', () => {
     render(<DependenciaModal isOpen={true} onClose={onClose} dependencias={dependencias} refreshDependencias={refreshDependencias} />);
   });
 
-  test('should render modal when open', () => {
+  it('should render modal when open', () => {
     expect(screen.getByText(/Manage Dependencias/i)).toBeInTheDocument();
   });
 
