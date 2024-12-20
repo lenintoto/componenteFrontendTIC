@@ -169,6 +169,7 @@ const VisualizarReportes = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
+    let totalCantidadBienes = 0;
 
     // Título principal
     doc.setFontSize(16);
@@ -197,9 +198,12 @@ const VisualizarReportes = () => {
             reporte.observacion,
         ];
 
+        // Sumar la cantidad de bienes
+        totalCantidadBienes += reporte.cantidad_bienes;
+
         // Agregar el campo de "Operario" solo si el usuario es administrador
         if (userRole === 'administrador') {
-            row.push(reporte.operario?.username || 'No asignado');
+            row.push(reporte.operario?.username || reporte.administrador?.username);
         }
 
         return row;
@@ -246,6 +250,28 @@ const VisualizarReportes = () => {
         alternateRowStyles: {
             fillColor: [240, 240, 240]
         }
+    });
+
+    // Agregar una fila con el total de bienes
+    doc.autoTable({
+        startY: doc.autoTable.previous.finalY + 10, // Posicionar debajo de la tabla anterior
+        head: [['Total de Bienes', totalCantidadBienes]], 
+
+        theme: 'grid',
+        styles: {
+            fontSize: 10,
+            halign: 'right',
+            fillColor: [240, 240, 240] // Color de fondo igual al de las filas alternas
+        },
+        headStyles: {
+            fillColor: [35, 58, 77], // Color de fondo del encabezado
+            textColor: [255, 255, 255],
+            halign: 'center'
+        },
+        columnStyles: {
+            0: { cellWidth: 150 },
+            1: { cellWidth: 40 },
+        },
     });
 
     // Descargar el PDF

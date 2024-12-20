@@ -12,7 +12,7 @@ const Sidebar = () => {
   return (
     <div className="bg-gray-900 text-white w-64 h-screen flex flex-col">
       <div className="flex items-center justify-center py-4">
-        <div className="text-base font-bold text-left">Dpto. Control de Bienes</div>
+        <div className="text-base font-bold text-left">Unidad de Bienes</div>
       </div>
 
       <ul className="mt-6 flex-grow">
