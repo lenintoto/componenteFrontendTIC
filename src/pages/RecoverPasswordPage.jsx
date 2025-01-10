@@ -48,10 +48,10 @@ const RecoverPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-blue-500">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
-        <h2 className="text-center text-2xl font-bold mb-6">Recover Password</h2>
+        <h2 className="text-center text-2xl font-bold mb-6">Recuperar Contraseña</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700">Email address</label>
+            <label htmlFor="email" className="block text-gray-700">Correo electrónico</label>
             <input
               type="email"
               id="email"
@@ -65,15 +65,15 @@ const RecoverPasswordPage = () => {
           </div>
           <div className="mb-4">
             <button className="w-full bg-blue-500 text-white p-2 rounded text-center block hover:bg-blue-600 transition">
-              Send Recovery Email
+              Enviar Correo de Recuperación
             </button>
           </div>
         </form>
         <div className="text-center">
           <p className="text-gray-700 text-sm">
-            Remembered your password?{' '}
+            Recordaste tu contraseña?{' '}
             <Link to="/login" className="text-blue-500">
-              Go to login
+              Iniciar Sesión
             </Link>
           </p>
         </div>

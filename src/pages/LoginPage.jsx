@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthProvider';
 import Mensaje from '../components/Alerts/Alertas';
 import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const LoginPage = () => {
   const { setAuth, auth } = useContext(AuthContext);
@@ -15,6 +16,7 @@ const LoginPage = () => {
 
   const [mensaje, setMensaje] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -71,6 +73,10 @@ const LoginPage = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem('userData');
     const storedToken = localStorage.getItem('token');
@@ -90,7 +96,7 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-blue-500">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         {Object.keys(mensaje).length > 0 && <Mensaje tipo={mensaje.tipo}>{mensaje.respuesta}</Mensaje>}
-        <h2 className="text-center text-2xl font-bold mb-6">Login</h2>
+        <h2 className="text-center text-2xl font-bold mb-6">Iniciar Sesión</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700">
@@ -103,29 +109,30 @@ const LoginPage = () => {
               value={form.username || ""}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your username"
+              placeholder="Ingresa tu nombre de usuario"
             />
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700">
-              Password
+              Contraseña
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={form.password || ""}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <input type="checkbox" id="remember" className="mr-2" />
-              <label htmlFor="remember" className="text-gray-700 text-sm">
-                Remember Password
-              </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={form.password || ""}
+                onChange={handleChange}
+                className="w-full p-2 border border-gray-300 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ingresa tu contraseña"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
           </div>
           <div className="mb-4">
@@ -133,7 +140,7 @@ const LoginPage = () => {
               className="w-full bg-blue-500 text-white p-2 rounded text-center block hover:bg-blue-600 transition"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Loading..." : "Login"}
+              {isSubmitting ? "Cargando..." : "Iniciar Sesión"}
             </button>
           </div>
         </form>
