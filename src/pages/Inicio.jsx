@@ -66,7 +66,7 @@ const Inicio = () => {
               )}
               <div className="bg-gray-100 p-4 rounded-md shadow-md">
                 <h3 className="text-lg font-bold mb-2">Visualizar Reportes</h3>
-                <p>Gestiona y revisa todos los registros existentes. Utiliza los filtros para buscar reportes por fecha, número de acta o estado (pendiente y firmado) y realiza acciones como subir archivos en un plazo de 30 días si en el registro creado no se subieron (el usuario es responsable de conservar el archivo para su validación, ya que su visualización en la tabla es temporal), o como administrador editar la información de los registros</p>
+                <p>Gestiona y revisa todos los registros existentes. Utiliza los filtros para buscar reportes por fecha, número de acta o estado (pendiente y firmado) y realiza acciones como subir archivos en un plazo de 30 días si en el registro creado no se subieron, o como administrador editar la información de los registros</p>
               </div>
               {userData.rol === 'administrador' && (
                 <div className="bg-gray-100 p-4 rounded-md shadow-md">
