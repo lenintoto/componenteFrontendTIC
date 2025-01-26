@@ -78,6 +78,7 @@ const ModalCrearUsuario = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
                   required
+                  placeholder="Ej: jperez o JPEREZ"
                 />
               </div>
 
@@ -90,6 +91,10 @@ const ModalCrearUsuario = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
                   required
+                  minLength="3"
+                  pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                  title="Solo se permiten letras"
+                  placeholder="Ej: Juan Pablo"
                 />
               </div>
 
@@ -102,17 +107,23 @@ const ModalCrearUsuario = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
                   required
+                  minLength="3"
+                  pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                  title="Solo se permiten letras"
+                  placeholder="Ej: Pérez González"
                 />
               </div>
 
               <div className="mb-4">
                 <label className="block text-gray-700">Extensión:</label>
                 <input
-                  type="tel"
+                  type="number"
                   name="extension"
                   value={formData.extension}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
+                  min="0"
+                  placeholder="Ej: 1234"
                 />
               </div>
 
@@ -125,6 +136,7 @@ const ModalCrearUsuario = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:border-indigo-500"
                   required
+                  placeholder="Ej: juan.perez@ejemplo.com"
                 />
               </div>
 
