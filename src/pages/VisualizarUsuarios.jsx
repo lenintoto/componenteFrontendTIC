@@ -5,6 +5,7 @@ import ModalEditarUsuario from '../components/modals/ModalEditarUsuario';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthProvider';
+import Mensaje from '../components/Alerts/Alertas';
 
 const VisualizarUsuarios = () => {
   const { auth } = useContext(AuthContext);
@@ -12,7 +13,8 @@ const VisualizarUsuarios = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
-  const [mensaje, setMensaje] = useState({ error: false, msg: '' });
+  const [mensaje, setMensaje] = useState({ msg: '', tipo: false });
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,25 +46,32 @@ const VisualizarUsuarios = () => {
     }
   };
 
+  const mostrarAlerta = (msg, tipo = false) => {
+    setMensaje({ msg, tipo });
+    setMostrarMensaje(true);
+    setTimeout(() => setMostrarMensaje(false), 3000);
+  };
+
   const cambiarEstadoUsuario = async (id, estadoActual) => {
     const confirmToggle = window.confirm('¿Está seguro de que desea cambiar el estado de este usuario?');
     if (!confirmToggle) return;
 
     try {
-        const token = auth.token;
-        await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/administrador/estado/${id}`,
-            { estado: !estadoActual },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-        obtenerUsuarios();
+      const token = auth.token;
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/estado/${id}`,
+        { estado: !estadoActual },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      mostrarAlerta('Estado del usuario actualizado exitosamente', true);
+      obtenerUsuarios();
     } catch (error) {
-      console.error('Error al cambiar el estado del usuario:', error);
+      mostrarAlerta(error.response?.data?.msg || 'Error al cambiar el estado del usuario', false);
     }
   };
 
@@ -73,6 +82,10 @@ const VisualizarUsuarios = () => {
 
   return (
     <div className="flex flex-col h-full p-6">
+      {mostrarMensaje && (
+        <Mensaje tipo={mensaje.tipo}>{mensaje.msg}</Mensaje>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
         <button
@@ -87,7 +100,10 @@ const VisualizarUsuarios = () => {
       <ModalCrearUsuario 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
-        onUserCreated={obtenerUsuarios}
+        onUserCreated={() => {
+          obtenerUsuarios();
+          mostrarAlerta('Usuario creado exitosamente', true);
+        }}
       />
 
       <ModalEditarUsuario
@@ -97,7 +113,10 @@ const VisualizarUsuarios = () => {
           setSelectedUser(null);
         }}
         usuario={selectedUser}
-        onUserUpdated={obtenerUsuarios}
+        onUserUpdated={() => {
+          obtenerUsuarios();
+          mostrarAlerta('Usuario actualizado exitosamente', true);
+        }}
       />
 
       <div>
