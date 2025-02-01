@@ -26,7 +26,7 @@ Para iniciar la aplicación ejecuta el siguiente comando:
 npm run dev
 ```
 
-##🛠 Solución a Errores Comunes
+## 🛠 Solución a Errores Comunes
 Si experimentas problemas con Vite o la aplicación no se ejecuta correctamente, es probable que haya archivos en caché o dependencias conflictivas. Sigue estos pasos:
 Limpiar caché y reconstruir el proyecto
 
@@ -44,14 +44,14 @@ npm install
 npm run dev
 ```
 
-##📂 Documentación detallada del proyecto de Tesis
+## 📂 Documentación detallada del proyecto de Tesis
 🔹 Tesis del Proyecto: [formatotrabajouic-sinanexo4.pdf](https://github.com/user-attachments/files/18629858/formatotrabajouic-sinanexo4.pdf)
 🔹 Video de la Funcionalidad del Proyecto: https://www.youtube.com/watch?v=I-qTAyaTO3E
 🔹 Formulario 233: [2. F_AA_233A_Cardenas-Gomez-signed-signed.pdf](https://github.com/user-attachments/files/18630268/2.F_AA_233A_Cardenas-Gomez-signed-signed.pdf)
 
 
 
-##📝 Notas
+## 📝 Notas
 - Asegúrate de tener instalada la versión correcta de Node.js.
 - Verifica que todas las variables de entorno estén configuradas correctamente en tu archivo .env.
 
