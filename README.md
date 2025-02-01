@@ -45,9 +45,9 @@ npm run dev
 ```
 
 ## 📂 Documentación detallada del proyecto de Tesis
-🔹 Tesis del Proyecto: [formatotrabajouic-sinanexo4.pdf](https://github.com/user-attachments/files/18629858/formatotrabajouic-sinanexo4.pdf)
-🔹 Video de la Funcionalidad del Proyecto: https://www.youtube.com/watch?v=I-qTAyaTO3E
-🔹 Formulario 233: [2. F_AA_233A_Cardenas-Gomez-signed-signed.pdf](https://github.com/user-attachments/files/18630268/2.F_AA_233A_Cardenas-Gomez-signed-signed.pdf)
+- Tesis del Proyecto: [formatotrabajouic-sinanexo4.pdf](https://github.com/user-attachments/files/18629858/formatotrabajouic-sinanexo4.pdf)
+- Video de la Funcionalidad del Proyecto: https://www.youtube.com/watch?v=I-qTAyaTO3E
+- Formulario 233: [2. F_AA_233A_Cardenas-Gomez-signed-signed.pdf](https://github.com/user-attachments/files/18630268/2.F_AA_233A_Cardenas-Gomez-signed-signed.pdf)
 
 
 
