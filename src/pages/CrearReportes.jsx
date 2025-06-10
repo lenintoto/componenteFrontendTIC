@@ -98,6 +98,9 @@ const CrearReportes = () => {
     try {
       const formDataToSend = new FormData();
       Object.keys(formData).forEach(key => {
+        if (key === 'observacion' && !formData[key]) {
+          return;
+        }
         formDataToSend.append(key, formData[key]);
       });
 
