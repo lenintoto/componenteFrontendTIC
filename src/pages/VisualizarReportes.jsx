@@ -15,8 +15,10 @@ const VisualizarReportes = () => {
     fecha_inicio: '',
     fecha_fin: '',
     numero_acta: '',
-    estado: ''
+    estado: '',
+    operarioId: ''
   });
+  const [operarios, setOperarios] = useState([]);
   const [error, setError] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedReporte, setSelectedReporte] = useState(null);
@@ -40,6 +42,9 @@ const VisualizarReportes = () => {
         const userData = JSON.parse(userDataString);
         setUserRole(userData.rol);
         obtenerReportes();
+        if (userData.rol === 'administrador') {
+          obtenerOperarios();
+        }
       }
     };
 
@@ -85,6 +90,28 @@ const VisualizarReportes = () => {
     }
   };
 
+  const obtenerOperarios = async () => {
+    try {
+      const token = auth?.token;
+      if (!token) return;
+
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/listar-operarios`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setOperarios(data);
+    } catch (error) {
+      console.error('Error al obtener operarios:', error);
+      mostrarAlerta(error.response?.data?.msg || 'Error al cargar los operarios');
+    }
+  };
+
   const filtrarReportes = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -123,6 +150,10 @@ const VisualizarReportes = () => {
         params.estado = filtros.estado;
       }
 
+      if (userRole === 'administrador' && filtros.operarioId.trim()) {
+        params.operarioId = filtros.operarioId;
+      }
+
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}${endpoint}`,
         {
@@ -154,7 +185,8 @@ const VisualizarReportes = () => {
       fecha_inicio: '',
       fecha_fin: '',
       numero_acta: '',
-      estado: ''
+      estado: '',
+      operarioId: ''
     });
     obtenerReportes();
   };
@@ -184,94 +216,94 @@ const VisualizarReportes = () => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, 10);
-    
+
     // Datos de la tabla
     const tableData = reportes.map((reporte, index) => {
-        const row = [
-            index + 1,
-            reporte.numero_acta,
-            reporte.nombre_custodio,
-            new Date(reporte.fecha_ingreso).toLocaleDateString('es-ES', { timeZone: 'UTC' }),
-            reporte.Dependencia?.nombre || 'No asignada',
-            reporte.cantidad_bienes,
-            reporte.estado,
-            reporte.observacion,
-        ];
+      const row = [
+        index + 1,
+        reporte.numero_acta,
+        reporte.nombre_custodio,
+        new Date(reporte.fecha_ingreso).toLocaleDateString('es-ES', { timeZone: 'UTC' }),
+        reporte.Dependencia?.nombre || 'No asignada',
+        reporte.cantidad_bienes,
+        reporte.estado,
+        reporte.observacion,
+      ];
 
-        // Sumar la cantidad de bienes
-        totalCantidadBienes += reporte.cantidad_bienes;
+      // Sumar la cantidad de bienes
+      totalCantidadBienes += reporte.cantidad_bienes;
 
-        // Agregar el campo de "Operario" solo si el usuario es administrador
-        if (userRole === 'administrador') {
-            row.push(reporte.operario?.username || reporte.administrador?.username);
-        }
+      // Agregar el campo de "Operario" solo si el usuario es administrador
+      if (userRole === 'administrador') {
+        row.push(reporte.operario?.username || reporte.administrador?.username);
+      }
 
-        return row;
+      return row;
     });
 
     // Encabezados de la tabla
     const headers = [
-        'Nº',
-        'N° Acta',
-        'Nombre del Custodio',
-        'Fecha de Asignación',
-        'Dependencia',
-        'Cantidad de Bienes',
-        'Estado',
-        'Observaciones',
+      'Nº',
+      'N° Acta',
+      'Nombre del Custodio',
+      'Fecha de Asignación',
+      'Dependencia',
+      'Cantidad de Bienes',
+      'Estado',
+      'Observaciones',
     ];
 
     // Agregar el encabezado de "Operario" solo si el usuario es administrador
     if (userRole === 'administrador') {
-        headers.push('Operario');
+      headers.push('Operario');
     }
 
     // Crear la tabla
     doc.autoTable({
-        head: [headers],
-        body: tableData,
-        startY: 40,
-        theme: 'grid',
-        styles: { 
-            cellPadding: 2,
-            fontSize: 8,
-            overflow: 'linebreak',
-            halign: 'center'
-        },
-        columnStyles: {
-            0: { cellWidth: 15 },
-            1: { cellWidth: 15 },
-        },
-        headStyles: {
-            fillColor: [35, 58, 77],
-            textColor: [255, 255, 255],
-            halign: 'center'
-        },
-        alternateRowStyles: {
-            fillColor: [240, 240, 240]
-        }
+      head: [headers],
+      body: tableData,
+      startY: 40,
+      theme: 'grid',
+      styles: {
+        cellPadding: 2,
+        fontSize: 8,
+        overflow: 'linebreak',
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 15 },
+      },
+      headStyles: {
+        fillColor: [35, 58, 77],
+        textColor: [255, 255, 255],
+        halign: 'center'
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240]
+      }
     });
 
     // Agregar una fila con el total de bienes
     doc.autoTable({
-        startY: doc.autoTable.previous.finalY + 10, // Posicionar debajo de la tabla anterior
-        head: [['Total de Bienes', totalCantidadBienes]], 
+      startY: doc.autoTable.previous.finalY + 10, // Posicionar debajo de la tabla anterior
+      head: [['Total de Bienes', totalCantidadBienes]],
 
-        theme: 'grid',
-        styles: {
-            fontSize: 10,
-            halign: 'right',
-            fillColor: [240, 240, 240] // Color de fondo igual al de las filas alternas
-        },
-        headStyles: {
-            fillColor: [35, 58, 77], // Color de fondo del encabezado
-            textColor: [255, 255, 255],
-            halign: 'center'
-        },
-        columnStyles: {
-            0: { cellWidth: 150 },
-            1: { cellWidth: 40 },
-        },
+      theme: 'grid',
+      styles: {
+        fontSize: 10,
+        halign: 'right',
+        fillColor: [240, 240, 240] // Color de fondo igual al de las filas alternas
+      },
+      headStyles: {
+        fillColor: [35, 58, 77], // Color de fondo del encabezado
+        textColor: [255, 255, 255],
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { cellWidth: 150 },
+        1: { cellWidth: 40 },
+      },
     });
 
     // Descargar el PDF
@@ -306,71 +338,93 @@ const VisualizarReportes = () => {
         </div>
       ) : (
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex space-x-4">
-              <div>
-                <label className="block text-gray-700 mb-1">Filtrar por Fecha:</label>
-                <input
-                  type="date"
-                  name="fecha_inicio"
-                  value={filtros.fecha_inicio}
-                  onChange={handleFiltroChange}
-                  className="p-2 border rounded-md text-gray-700"
-                />
-                <span className="mx-2">-</span>
-                <input
-                  type="date"
-                  name="fecha_fin"
-                  value={filtros.fecha_fin}
-                  onChange={handleFiltroChange}
-                  className="p-2 border rounded-md text-gray-700"
-                />
+          <div className="p-6 rounded-lg mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Filtros de Búsqueda</h2>
+              <div className="flex space-x-2">
+                <button
+                  onClick={filtrarReportes}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105 text-sm"
+                >
+                  Buscar
+                </button>
+                <button
+                  onClick={limpiarFiltros}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1.5 px-4 rounded-md transition duration-200 ease-in-out transform hover:scale-105 text-sm"
+                >
+                  Limpiar
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Filtro por Fecha */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Filtrar por Fecha</label>
+                <div className="flex flex-col space-y-2">
+                  <input
+                    type="date"
+                    name="fecha_inicio"
+                    value={filtros.fecha_inicio}
+                    onChange={handleFiltroChange}
+                    className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/50 backdrop-blur-sm"
+                  />
+                  <input
+                    type="date"
+                    name="fecha_fin"
+                    value={filtros.fecha_fin}
+                    onChange={handleFiltroChange}
+                    className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/50 backdrop-blur-sm"
+                  />
+                </div>
               </div>
 
-              <div className="text-center">
-                <label className="block text-gray-700 mb-1">o</label>
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-1">Buscar por N° Acta:</label>
+              {/* Filtro por Número de Acta */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Buscar por N° Acta</label>
                 <input
                   type="text"
                   name="numero_acta"
                   value={filtros.numero_acta}
                   onChange={handleFiltroChange}
-                  placeholder="Número de Acta"
-                  className="p-2 border rounded-md text-gray-700"
+                  placeholder="Ingrese el número de acta"
+                  className="p-2 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/50 backdrop-blur-sm"
                 />
               </div>
 
-              <div>
-                <label className="block text-gray-700 mb-1">Filtrar por Estado:</label>
+              {/* Filtro por Estado */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Filtrar por Estado</label>
                 <select
                   name="estado"
                   value={filtros.estado}
                   onChange={handleFiltroChange}
-                  className="p-2 border rounded-md text-gray-700"
+                  className="p-2 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/50 backdrop-blur-sm"
                 >
-                  <option value="">Todos</option>
+                  <option value="">Todos los estados</option>
                   <option value="firmado">Firmado</option>
                   <option value="pendiente">Pendiente</option>
                 </select>
               </div>
-            </div>
 
-            <div className="space-x-2">
-              <button
-                onClick={filtrarReportes}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Buscar
-              </button>
-              <button
-                onClick={limpiarFiltros}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Limpiar Filtros
-              </button>
+              {/* Filtro por Operario (solo para administradores) */}
+              {userRole === 'administrador' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Filtrar por Operario</label>
+                  <select
+                    name="operarioId"
+                    value={filtros.operarioId}
+                    onChange={handleFiltroChange}
+                    className="p-2 border border-gray-300 rounded-md w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white/50 backdrop-blur-sm"
+                  >
+                    <option value="">Todos los operarios</option>
+                    {operarios.map(operario => (
+                      <option key={operario._id} value={operario._id}>
+                        {operario.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
