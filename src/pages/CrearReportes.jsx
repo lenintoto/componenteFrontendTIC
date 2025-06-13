@@ -150,19 +150,23 @@ const CrearReportes = () => {
     <div className="max-w-md mx-auto mt-10 p-5 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Crear Registros</h1>
 
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="mb-4 bg-gray-600 hover:bg-gray-400 text-white py-2 px-4 rounded-lg"
-      >
-        Manage Dependencias
-      </button>
+      {auth.rol === 'administrador' && (
+        <div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="mb-4 bg-gray-600 hover:bg-gray-400 text-white py-2 px-4 rounded-lg"
+          >
+            Manage Dependencias
+          </button>
 
-      <DependenciaModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        dependencias={dependencias}
-        refreshDependencias={fetchDependencias}
-      />
+          <DependenciaModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            dependencias={dependencias}
+            refreshDependencias={fetchDependencias}
+          />
+        </div>
+      )}
 
       {mensaje.msg && (
         <div className={`p-4 mb-4 rounded-lg ${mensaje.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
